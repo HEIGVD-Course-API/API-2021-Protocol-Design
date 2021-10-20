@@ -12,7 +12,7 @@
 ### Messages
 * Syntax: JSON
   * operation request: {"operation": String, operands: Number[]}
-  * repsonse: {"result": Number}
+  * response: {"result": Number}
   * error: {"error": String}
 * Sequence
   * Client: request operation
@@ -47,7 +47,7 @@
 ### Specific elements
 * Additions, substractions
 * Error if query is malformed
-* What ?
+* We should add Esperanto language support
 
 ### Exemple
 * Client: 1 * a
