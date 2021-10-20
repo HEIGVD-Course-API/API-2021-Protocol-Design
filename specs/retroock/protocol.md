@@ -16,7 +16,7 @@ Overall behavior:
 
 Messages:
 - What is the syntax of the messages?
-    - BIENVENU
+    - BIENVENUE
         - message envoyé par le serveur au client qui permet d'afficher les calculs supportés. Exemple : BIENVENU
     - CALCUL
         - message envoyé par le client vers le serveur qui permet d'effectuer les calculs, il doit être composé de 2 nombres et 1 opérateur. 
@@ -39,6 +39,7 @@ Specific elements (if useful)
 - Error handling
     si le format envoyé est erroné (code 100)
     si l'opération n'est pas supportée (code 200)
+    si le mot clé (par exemple CALCUL) n'existe pas (code 300)
 	
 - Extensibility
     supporter plus d'opération, comme la soustraction et la division. (attention pour la division rajout de la division par 0)
@@ -51,7 +52,7 @@ client -> CALCUL 2 * 3 -> serveur
 serveur -> RESULT 6 -> client
 client -> CALCUL 2 + 1 -> serveur
 serveur -> RESULT 3 -> client
-client -> QUIT -> serveur
+client -> QUITTER -> serveur
 
 Exemple 2:
 serveur -> BIENVENU -> client
@@ -59,17 +60,22 @@ client -> CALCUL 2 +1 -> serveur
 serveur -> ERREUR 100 MAUVAIS FORMAT -> client
 client -> CALCUL 2 + 1 -> serveur
 serveur -> RESULT 3 -> client
-client -> QUIT -> serveur
+client -> QUITTER -> serveur
 
 Exemple 3:
 serveur -> BIENVENU -> client
 client -> CALCUL 2 / 1 -> serveur
-serveur -> ERREUR 200 OPERATION PAS GEREE -> client
-client -> QUIT -> serveur
+serveur -> ERREUR 200 OPERATION PAS SUPPORTEE -> client
+client -> QUITTER -> serveur
 
 Exemple 4:
 serveur -> BIENVENU -> client
-client -> CALCUL 2 / a -> serveur
+client -> CALCUL 2 + a -> serveur
 serveur -> ERREUR 100 MAUVAIS FORMAT -> client
-client -> QUIT -> serveur
+client -> QUITTER -> serveur
 
+Exemple 5:
+serveur -> BIENVENU -> client
+client -> TEST 2 + 2 -> serveur
+serveur -> ERREUR 300 MOT CLE INCONNU -> client
+client -> QUITTER -> serveur
