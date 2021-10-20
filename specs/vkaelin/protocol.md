@@ -8,25 +8,26 @@ The main goal is of the protocol is to allow a client to ask a server to compute
 
 ## Overall behavior:
 ### What transport protocol do we use?  
-We will use the TCP/Ip protocol.
+We will use the TCP/IP protocol.
 
 ### How does the client find the server (addresses and ports)?  
 The client needs this information from the user.
 
 ### Who speaks first?  
-The Client speaks first. It will try to make a connection to the given adresse / port to see if a TCP server is running.
+The server will send the list of available operations to the client.
 
 ### Who closes the connection and when?  
 The client decides when he wants to close the connection (when he does not want to compute calculations anymore).
 
 ## Messages:
 
+Each message is a complete line, terminated by the a CRLF end of line character.  
 Here is the syntax we have chosen, it's basically following the format: ``Operation leftValue rightValue``
 Example: 
 
 ``ADD n1 n2``
 
-If the client sends the message `quit`, the connection will be terminated.
+If the client sends the message `QUIT`, the connection will be terminated.
 
 ### Supported operations
 
@@ -60,16 +61,20 @@ It's possible to add more operations in the future without too much hasle. On a 
 
 ## Examples: examples of some typical dialogs.
 
-We assume the server is running locally on the 9999 port.
-
-Client: nc localhost 9999
-Server: A new client has arrived.
+Server: Welcome! Here are the available operations:
+Server: ADD  
+Server: SUB  
+Server: MULT  
+Server: DIV  
+Server: END_OF_OPERATIONS
 Client: ADD 5 6  
 Server: 11  
 Client: DIV 8 0  
-Server: Error: Division by 0 is impossible  
+Server: ERROR: Calculation impossible 
 Client: DIV 8 2  
 Server: 4  
-Client: quit 
+Client: FBEFIBFUIEBF  
+Server: ERROR: Calculation impossible 
+Client: QUIT 
 
 Connection is now closed.
