@@ -34,7 +34,7 @@ Ce protocole a pour but d'effectuer les quatre opérations arithémtiques de bas
 
 ## Diagramme de séquence
 
-![Diagramme de séquence](Diagramme_Sequence.svg "Diagramme de séquence")
+![Diagramme de séquence](Diagramme_sequence.svg "Diagramme de séquence")
 
 ## Séquence d'analyse
 
