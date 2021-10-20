@@ -1,6 +1,23 @@
 # Specs
 ## PrazTobie 
 
+### Overall behavior
+* Protocol: TCP
+* Discovery: broadcast on 255.255.255.255
+* First: client
+* Closing: server
+
+### Messages
+* Syntax: JSON
+  * operation request: {"operation": String, operands: Number[]}
+  * repsonse: {"result": Number}
+  * error: {"error": String}
+* Sequence
+  * Client: request operation
+  * Server: respond with operation result
+  
+###Misc
+* Error handling: return error reason (invalid operation)
 
 ## damianomondaini
 
