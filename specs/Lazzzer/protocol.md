@@ -23,14 +23,15 @@ Le client demande une fermeture de la connexion avec la commande **BYE**. A la r
 
 #### Quelle est la syntaxe des messages ?
 * Pour le client:  
-Il est possible d'envoyer soit un mot-clé soit une opération arithmétique.  
-Les mots-clés disponibles sont: **HELP**, **BYE**
+Il est possibl d'envoyer des commandes avec ou sans arguments.  
+Les commandes disponibles sont: **HELP**, **BYE** et **COMPUTE**  
+**COMPUTE** contient 3 arguments: le premier spécifie le type d'opération (ADD, SUB, MUL, DIV) tandis que les deux autres sont les opérandes.
 * Pour le serveur:  
-Il envoie soit un message d'information (de bienvenue ou d'erreur) soit le résultation de l'opération demandée.
+Il envoie soit un message d'information (de bienvenue ou d'erreur) soit le résultat de l'opération demandée.
 
 #### Quelle est la séquence de messages entre le client et le serveur?
-Le serveur accueille le client qui vient de se connecter avec un message de bienvenue. Si le client envoie une opération, le message renvoie le résultat.
-Si le client envoie une commande, le serveur répond avec le message correspondant. Si le client envoie une mauvaise requête, le serveur transmet un message d'erreur.
+Le serveur accueille le client qui a réussi à se connecter avec un message de bienvenue. Si le client envoie une demande d'opération, le serveur renvoie le résultat.
+Si le client envoie une mauvaise requête, le serveur transmet un message d'erreur.
 
 ### Elements spécifiques
 
@@ -48,33 +49,36 @@ Server >
 Welcome, you are now connected with our calculation server.
 Type "HELP" to see example of commands.
 Existing operations :
-+ (addition)
-- (substraction)
-* (mutiplication)
-/ (division)
+ADD (addition)
+SUB (substraction)
+MUL (multiplication)
+DIV (division)
 
 Client >
 HELP
 
 Server >
-Existing operations :
-+ (addition)
-- (substraction)
-* (mutiplication)
-/ (division)
-Example: to execute an addition, type "1 + 2".
-
 Existing commands:
-BYE : Terminate the connection.
+HELP    : Show all the commands & operations. Provides examples.
+COMPUTE [OPERATION] [OPERAND1] [OPERAND2] : Execute the operation given as argument.
+BYE     : Terminate the connection.
+
+Existing operations :
+ADD (addition)
+SUB (substraction)
+MUL (mutiplication)
+DIV (division)
+
+Example: to execute an addition, type: COMPUTE ADD 1 2.
 
 Client >
-1 +
+COMPUTE ADD 1
 
 Server >
-Error: invalid operation.
+Error: invalid command.
 
 Client >
-3 * 7
+COMPUTE MUL 3 7
 
 Server >
 21
@@ -83,7 +87,7 @@ Client >
 bye
 
 Server >
-Error: invalid operation.
+Error: invalid command.
 
 Client >
 BYE
