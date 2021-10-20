@@ -7,7 +7,7 @@
   * Server IP: known
   * Server port: 1234
 * First: client
-* Closing: server
+* Closing: server closes connection after response is sent 
 
 ### Messages
 * Syntax: JSON
