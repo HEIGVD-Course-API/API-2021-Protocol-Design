@@ -1,16 +1,18 @@
+Justin Rausis & Olivier Tissot-Daguette
 
 Protocol objectives: what does the protocol do?
  - le protocol permet de demander à un serveur d'effectuer des calculs. 
    Il doit supporter au minimum l'addition et la multiplication.
+
 Overall behavior:
-- What transport protocol do we use?
-	- nous allons utiliser TCP comme protocol de transport
-- How does the client find the server (addresses and ports)?
-	- l'adresse sera le localhost et le port 1024
-- Who speaks first?
-	- le serveur
-- Who closes the connection and when?
-    - le client
+ - What transport protocol do we use?
+     - nous allons utiliser TCP comme protocol de transport
+ - How does the client find the server (addresses and ports)?
+     - l'adresse sera le localhost et le port 1024
+ - Who speaks first?
+     - le serveur
+ - Who closes the connection and when?
+     - le client
 
 Messages:
 - What is the syntax of the messages?
