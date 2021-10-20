@@ -3,7 +3,9 @@
 
 ### Overall behavior
 * Protocol: TCP
-* Discovery: broadcast on 255.255.255.255
+* Discovery:
+  * Server IP: known
+  * Server port: 1234
 * First: client
 * Closing: server
 
