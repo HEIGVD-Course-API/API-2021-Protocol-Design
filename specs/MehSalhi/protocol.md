@@ -17,6 +17,7 @@
       * The Server sends the first message with by displaying the available commands
       * The client send a command
       * The server treats the command and give the result
+        * RESULT 2
       * The client end the connexion with "BYE"
     * What happens when a message is received from the other party? (semantics)
       * The message is parsed and interpreted
