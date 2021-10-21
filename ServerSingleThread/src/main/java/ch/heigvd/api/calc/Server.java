@@ -32,14 +32,17 @@ public class Server {
          *  The receptionist just creates a server socket and accepts new client connections.
          *  For a new client connection, the actual work is done by the handleClient method below.
          */
+        System.out.println("Starting server ...");
+
         ServerSocket serverSocket;
         Socket clientSocket = null;
-        BufferedWriter stdout = null;
+        //BufferedWriter stdout = null;
         BufferedReader stdin = null;
+        PrintWriter stdout = null;
 
         try {
             serverSocket = new ServerSocket(PORT);
-            System.out.println(serverSocket.getLocalSocketAddress());
+            System.out.println("Socket created " + serverSocket.getLocalSocketAddress());
         } catch (IOException e){
             LOG.log(Level.SEVERE, null, e);
             return;
@@ -49,6 +52,7 @@ public class Server {
             try{
                 LOG.log(Level.INFO, "waiting for new client");
                 clientSocket = serverSocket.accept();
+
                 if(clientSocket.isClosed()) {
                     System.out.println("client socket is closed");
                 }
@@ -58,10 +62,7 @@ public class Server {
                                 clientSocket.getInputStream(),
                                 StandardCharsets.UTF_8));
                 stdout =
-                        new BufferedWriter(
-                                new OutputStreamWriter(
-                                        clientSocket.getOutputStream(),
-                                        StandardCharsets.UTF_8));
+                        new PrintWriter(clientSocket.getOutputStream());
 
                 //String welcome = new String("WELCOME\n");
                 //stdout.write(welcome, 0, welcome.length());
@@ -91,11 +92,7 @@ public class Server {
                 } catch (IOException e) {
                     LOG.log(Level.SEVERE, e.toString(), e);
                 }
-                try {
-                    if(stdout != null) stdout.close();
-                } catch (IOException e) {
-                    LOG.log(Level.SEVERE, e.toString(), e);
-                }
+                if(stdout != null) stdout.close();
             }
         }
 
@@ -118,10 +115,6 @@ public class Server {
          *     - Handle the message
          *     - Send to result to the client
          */
-
-
-
-
 
     }
 }
