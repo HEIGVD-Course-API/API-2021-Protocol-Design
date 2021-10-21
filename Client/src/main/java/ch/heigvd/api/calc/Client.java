@@ -52,8 +52,14 @@ public class Client {
 
             while((line = stdin.readLine()) != null) {
                 stdout.write(line);
+
+                if (line.startsWith("QUIT"))
+                    break;
+
                 LOG.log(Level.INFO, "Server: " + stdin.readLine());
             }
+
+            LOG.log(Level.INFO, "Client: QUIT command sent, quitting...");
 
         }
         catch (IOException e){
