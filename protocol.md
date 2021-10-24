@@ -17,6 +17,7 @@
 
 ### Messages:
 * What is the syntax of the messages?
+  * All commands end with `\n`
   * Client : 4 possibilities
     * `OP NUMBER`
     * `OP FUN NUMBER`
