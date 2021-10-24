@@ -1,7 +1,7 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class Client {
 
     private static final Logger LOG = Logger.getLogger(Client.class.getName());
-
+    final static int BUFFER_SIZE = 4;
     /**
      * Main function to run client
      *
@@ -32,8 +32,63 @@ public class Client {
          *     - send the command to the server
          *     - read the response line from the server (using BufferedReader.readLine)
          */
+        int portNumber = 2048;
+        String host = "127.0.0.1";
 
         stdin = new BufferedReader(new InputStreamReader(System.in));
 
+        Socket clientSocket = null;
+        OutputStream os = null;
+        InputStream is = null;
+        String clientRequest = "";
+
+        try {
+            clientSocket = new Socket(host, portNumber);
+            os = clientSocket.getOutputStream();
+            is = clientSocket.getInputStream();
+
+
+
+            while(clientRequest != "BYE") {
+                ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int newBytes;
+
+                while ((newBytes = is.read(buffer)) != -1) {
+                    responseBuffer.write(buffer, 0, newBytes);
+                    System.out.println(responseBuffer.toString());
+
+                }
+
+                System.out.println("AFTER WHILE LOOP");
+
+                clientRequest = stdin.readLine();
+
+                os.write(clientRequest.getBytes());
+
+                System.out.println("AFTER OS.WRITE");
+            }
+        }
+        catch(IOException ex){
+            LOG.log(Level.SEVERE, null, ex);
+        }finally {
+            try {
+                is.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                os.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, "os no closed", ex);
+            }
+            try {
+                clientSocket.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
     }
 }
+
