@@ -3,6 +3,8 @@ package ch.heigvd.api.calc;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,6 +29,7 @@ public class Client {
         Socket clientSocket = null;
         BufferedWriter out = null;
         BufferedReader in = null;
+        BufferedReader usrin = new BufferedReader(new InputStreamReader(System.in));
 
 
         /* TODO: Implement the client here, according to your specification
@@ -40,13 +43,24 @@ public class Client {
          */
         try {
             clientSocket = new Socket(HOST, PORT);
-            System.out.println(clientSocket.getInetAddress());
+            System.out.println("Connected to \"" + clientSocket.getInetAddress() + "\"");
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            String line;
-            while ((line = in.readLine()) != null) {
-                System.out.println(line);
+            String line, response;
+
+            while ((response = in.readLine()) != null) {
+
+                System.out.println("S: " + response);
+
+                System.out.print("C: ");
+                line = usrin.readLine();
+
+                out.write(line + '\n');
+                out.flush();
+
+                if (line.startsWith("END "))
+                    break;
             }
 
         } catch (IOException e){
