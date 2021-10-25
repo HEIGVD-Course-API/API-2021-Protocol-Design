@@ -51,15 +51,21 @@ public class Client {
 
             while ((response = in.readLine()) != null) {
 
-                System.out.println("S: " + response);
+                // The server greets us and lists its supported ops
+                if (response.startsWith("WELCOME"))
+                    while (!response.startsWith("END_OF_OPS")) {
+                        System.out.println(response);
+                        response = in.readLine();
+                    }
 
-                System.out.print("C: ");
+                System.out.println(response);
+                System.out.print("> ");
                 line = usrin.readLine();
 
                 out.write(line + '\n');
                 out.flush();
 
-                if (line.startsWith("END "))
+                if (line.startsWith("END"))
                     break;
             }
 
