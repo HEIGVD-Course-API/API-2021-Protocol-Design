@@ -125,8 +125,8 @@ public class ServerWorker implements Runnable {
 
                     // Quit if command was BYE
                     if (words[0].equals("BYE")) {
-                        writer.println("CLOSING CONNECTION");
-                        writer.flush();
+                        //writer.println("CLOSING CONNECTION");
+                        //writer.flush();
                         break;
                     }
 

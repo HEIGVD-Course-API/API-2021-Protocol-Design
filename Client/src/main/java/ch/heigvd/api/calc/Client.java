@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 public class Client {
 
     private static final Logger LOG = Logger.getLogger(Client.class.getName());
-    final static int BUFFER_SIZE = 4;
+    final static int BUFFER_SIZE = 1024;
     /**
      * Main function to run client
      *
@@ -47,26 +47,26 @@ public class Client {
             os = clientSocket.getOutputStream();
             is = clientSocket.getInputStream();
 
+            ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int newBytes;
 
+            while ((newBytes = is.read(buffer)) != -1) {
+                responseBuffer.write(buffer, 0, newBytes);
+                System.out.println(responseBuffer.toString());
 
-            while(clientRequest != "BYE") {
-                ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
-                byte[] buffer = new byte[BUFFER_SIZE];
-                int newBytes;
-
-                while ((newBytes = is.read(buffer)) != -1) {
-                    responseBuffer.write(buffer, 0, newBytes);
-                    System.out.println(responseBuffer.toString());
-
+                /*
+                if(clientRequest.equals("BYE")) {
+                    break;
                 }
-
-                System.out.println("AFTER WHILE LOOP");
-
+                */
+                //System.out.println("AFTER WHILE LOOP");
                 clientRequest = stdin.readLine();
 
                 os.write(clientRequest.getBytes());
+                //System.out.println("AFTER OS.WRITE");
+                responseBuffer.reset();
 
-                System.out.println("AFTER OS.WRITE");
             }
         }
         catch(IOException ex){

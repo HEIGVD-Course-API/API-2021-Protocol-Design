@@ -143,6 +143,7 @@ public class Server {
 
             System.out.println("Reading server message...\n");
             while ((newBytes = fromClient.read(buffer)) != -1) {
+
                 // process WELCOME message from the server
 
                 responseBuffer.write(buffer, 0, newBytes);
@@ -158,8 +159,8 @@ public class Server {
 
                 // Quit if command was BYE
                 if(words[0].equals("BYE")) {
-                    writer.println("CLOSING CONNECTION");
-                    writer.flush();
+                    //writer.println("CLOSING CONNECTION");
+                    //writer.flush();
                     break;
                 }
 
