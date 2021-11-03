@@ -6,7 +6,7 @@ import java.util.Arrays;
  * Utils to translate and verify operators
  */
 public class Operator {
-    static final String[] know_op = {"+", "-", "*", "/", "%"};
+    static final String[] know_op = {"+", "-", "*", "/", "%", "="};
 
     /**
      * Check if string is a valid operator
@@ -47,6 +47,8 @@ public class Operator {
                 return OP.DIVIDE;
             case "%":
                 return OP.MODULUS;
+            case "=":
+                return OP.AFFECT;
         }
 
         return null;
