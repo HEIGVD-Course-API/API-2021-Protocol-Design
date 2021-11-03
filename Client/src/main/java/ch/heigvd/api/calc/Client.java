@@ -1,7 +1,7 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +34,57 @@ public class Client {
          */
 
         stdin = new BufferedReader(new InputStreamReader(System.in));
+
+        Socket clientSocket = null;
+        BufferedWriter out = null;
+        BufferedReader in = null;
+        try {
+            clientSocket = new Socket("localhost", 3000);
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String n1;
+            String n2;
+            String op;
+
+
+            LOG.log(Level.INFO, "Enter the first number");
+            n1 = stdin.readLine();
+
+            LOG.log(Level.INFO, "Enter the second number");
+            n2 = stdin.readLine();
+
+            LOG.log(Level.INFO, "Enter the operation");
+            op = stdin.readLine();
+
+            LOG.log(Level.INFO, "You've entered: " + n1 + " " + n2 + " " + op);
+
+            out.write(n1 + " " + n2 + " " + op);
+
+            LOG.log(Level.INFO, in.readLine());
+
+        }catch(IOException e){
+            LOG.log(Level.SEVERE, e.toString(), e);
+
+        }finally {
+            try {
+                if (out != null) out.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+            try {
+                if (in != null) in.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+            try {
+                if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+        }
+
+
+
 
     }
 }
