@@ -2,7 +2,6 @@ package ch.heigvd.api.calc;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,30 +49,32 @@ public class ServerWorker implements Runnable {
     }
 
     /**
-     * Send current value to client
+     * Shows current_value to client
+     * @param show_prompt should show "> " on new line or not
      */
-    private void show_current_value() {
+    private void show_current_value(boolean show_prompt) {
         out.println(current_value);
+        if (show_prompt) out.print("> ");
         out.flush();
     }
 
     /**
      * Check if value is zero
-     * Permit to standardize check if we want to change type used
+     * Permit to factorize check if we want to change type used
      * @param value to check
      * @return value == 0
      */
-    private boolean is_zero(Double value) {
+    private static boolean is_zero(Double value) {
         return (value == 0);
     }
 
     /**
-     * Set current value to value and send it to client
+     * Set current_value to value and send it to client
      * @param value new value
      */
     private void set(Double value) {
         current_value = value;
-        show_current_value();
+        show_current_value(true);
     }
 
     /**
@@ -88,7 +89,7 @@ public class ServerWorker implements Runnable {
      * Subtract value to current value and send it to client
      * @param value to subtract
      */
-    private void sub(Double value) {
+    private void subtract(Double value) {
         set(current_value - value);
     }
 
@@ -96,15 +97,16 @@ public class ServerWorker implements Runnable {
      * Multiply current value by value and send it to client
      * @param value to multiply
      */
-    private void mult(Double value) {
+    private void multiply(Double value) {
         set(current_value * value);
     }
 
     /**
      * Divide current value by value and send it to user
+     * Could send client error "DIVIDE_BY_ZERO" if value == 0
      * @param value to use as divider
      */
-    private void div(Double value) {
+    private void divide(Double value) {
         if (is_zero(value)) {
             show_error(ErrorCode.DIVIDE_BY_ZERO);
             return;
@@ -114,9 +116,10 @@ public class ServerWorker implements Runnable {
 
     /**
      * Apply modulus of value to current value and send it to client
+     * Could send client error "DIVIDE_BY_ZERO" if value == 0
      * @param value to use as modulus
      */
-    private void mod(Double value) {
+    private void modulus(Double value) {
         if (is_zero(value)) {
             show_error(ErrorCode.DIVIDE_BY_ZERO);
             return;
@@ -138,6 +141,18 @@ public class ServerWorker implements Runnable {
             case OVERFLOW:
                 msg = "Overflow";
                 break;
+            case UNKNOWN_COMMAND:
+                msg = "Unkown command syntax";
+                break;
+            case INVALID_INPUT:
+                msg = "Invalid input";
+                break;
+            case UNKNOWN_OPERATOR:
+                msg = "Unknown operator used";
+                break;
+            case UNKNOWN_FUNC:
+                msg = "Unkown function used";
+                break;
             default:
                 msg = "Unknown error";
         }
@@ -148,68 +163,106 @@ public class ServerWorker implements Runnable {
 
     /**
      * Convert string to value and check for errors
+     * @throws NumberFormatException if string can't be converted to Double
      * @param value_to_convert explicit
      * @return converted value
      */
-    private Double convert(String value_to_convert) {
+    private Double convert(String value_to_convert) throws NumberFormatException {
         try {
             return Double.parseDouble(value_to_convert);
         } catch (Exception e) {
+            LOG.log(Level.SEVERE, "Can't convert string to double !", e);
             show_error(ErrorCode.INVALID_INPUT);
             throw e;
         }
     }
 
     /**
-     * Execute op on current value with op
-     * current_value = current_value op value;
-     * @param op operator to execute
-     * @param value value to apply
+     * Execute current_value = current_value op value;
+     * @param op operator to apply
+     * @param value value to use for calculation
      */
     private void execOp(String op, Double value) {
+        // Checks that operators exists
         if (!Operator.is_valid(op)) {
             show_error(ErrorCode.UNKNOWN_OPERATOR);
             return;
         }
 
+        // Convert string operator to enum
         OP e_op = Operator.to_enum(op);
 
-        switch(Objects.requireNonNull(e_op)) {
+        // NOTE : As operator is checked with is_valid, then it will never be null !
+        // So we can ignore this warning, everything is safe
+        // Execute operator on value
+        switch(e_op) {
             case PLUS:
                 add(value);
                 break;
             case MINUS:
-                sub(value);
+                subtract(value);
                 break;
             case MULT:
-                mult(value);
+                multiply(value);
                 break;
             case DIVIDE:
-                div(value);
+                divide(value);
                 break;
             case MODULUS:
-                mod(value);
+                modulus(value);
+                break;
+            case AFFECT:
+                set(value);
                 break;
         }
     }
 
     /**
-     * Execute function on current value then execute operator with new value
-     * current_value = value op func(value);
+     * Execute op on current value with op
+     * current_value = current_value op value;
+     * Example : current_value = current_value + 12;
+     * @param op operator to execute
+     * @param val value to apply
+     */
+    private void execOp(String op, String val) {
+        double value;
+
+        // Convert value to double
+        try {
+            value = convert(val);
+        } catch (NumberFormatException ignore) {return;}
+
+        execOp(op, value);
+    }
+
+    /**
+     * Execute function on current val then execute operator with new val
+     * current_value = val op func(val);
      * @param op operator to execute
      * @param func math function to execute
-     * @param value value to use
+     * @param val val to use
      */
-    private void execFunc(String op, String func, Double value) {
+    private void execFunc(String op, String func, String val) {
+        double value;
+
+        // Convert value to double
+        try {
+            value = convert(val);
+        } catch (NumberFormatException e) {return;}
+
+        // Checks that the function is known
         if (!Function.is_valid(func)) {
             show_error(ErrorCode.UNKNOWN_FUNC);
             return;
         }
 
+        // Convert function to enum
         FUNC e_func = Function.to_enum(func);
 
-        // Appliquer la fonction et modifie value
-        switch (Objects.requireNonNull(e_func)) {
+        // NOTE : As we tested that the function exists, it will never be null
+            // Then, we can ignore the warning
+        // Apply function on val
+        switch (e_func) {
             case COS:
                 value = Math.cos(value);
                 break;
@@ -233,6 +286,7 @@ public class ServerWorker implements Runnable {
                 break;
         }
 
+        // Execute operation with the new val
         execOp(op, value);
     }
 
@@ -244,20 +298,18 @@ public class ServerWorker implements Runnable {
         // INIT
         out.println("Hello ! Welcome on our awesome calculator !");
         out.println("Supported commands :");
-        out.println("value : Set current_value to value");
-        out.println("OP value : Execute current_value OP value");
-        out.println("Supported operators : " + Operator.list());
-        out.println("OP FUNC value : Execute current_value OP FUNC(value)");
-        out.println("Supported functions : " + Function.list());
+        out.println("'value' : Set current_value to value\n");
+        out.println("'OP value' : Execute current_value OP value");
+        out.println("Supported operators : " + Operator.list() + "\n");
+        out.println("'OP FUNC value' : Execute current_value OP FUNC(value)");
+        out.println("Supported functions : " + Function.list() + "\n");
 
         // Set starting value to 0 and send it to client
         set((double) 0);
 
-
         // Communication with clients
-        String line = null;        // Read ligne from reader
+        String line = null;        // Read line from reader
         String[] commands;         // Commands splitted from line
-        Double value;              // Converted value
 
         LOG.info("WORKER - Reading on #"+id+" until client sends BYE or closes the connection...");
         while(!Thread.interrupted()) {
@@ -270,14 +322,14 @@ public class ServerWorker implements Runnable {
 
             // Check that line is valid
             if (line == null) {
-                terminaison("line == null");
+                end_client("line == null");
                 return;
             }
 
             // If line == "bye", end of communication
             if (line.equalsIgnoreCase("bye")) {
                 LOG.info("WORKER - Closed by client on #"+id+" !");
-                terminaison("bye");
+                end_client("bye from client");
                 return;
             }
 
@@ -287,72 +339,45 @@ public class ServerWorker implements Runnable {
             // Execute received command
             switch (commands.length) {
                 case 1: // NUMBER
-                    try {
-                        value = convert(commands[0]);
-                    } catch (Exception ignored) {
-                        break;
-                    }
-
-                    set(value);
+                    execOp("=", commands[0]);
                     break;
                 case 2: // OP NUMBER
-                    try {
-                        value = convert(commands[1]);
-                    } catch (Exception ignored) {
-                        break;
-                    }
-
-                    execOp(commands[0], value);
+                    execOp(commands[0], commands[1]);
                     break;
                 case 3: // OP FUNC NUMBER
-                    try {
-                        value = convert(commands[2]);
-                    } catch (Exception ignored) {
-                        break;
-                    }
-
-                    execFunc(commands[0], commands[1], value);
+                    execFunc(commands[0], commands[1], commands[2]);
                     break;
-
                 default: // Unknown case
                     show_error(ErrorCode.UNKNOWN_COMMAND);
                     break;
             }
         }
 
-        terminaison("End of program");
+        end_client("End of program");
     }
 
     /**
      * Clean end of thread
      * @param caller who try to end the thread
      */
-    public void terminaison(String caller) {
+    public void end_client(String caller) {
         // Close only once
         if (ended) return;
         ended = true;
 
-        LOG.info("WORKER - Closing client #"+id+" by " + caller);
+        LOG.info("WORKER - Closing client #"+id+", called by " + caller);
 
-        // Send end message
+        // Send end message to client
         if (out != null) {
             try {
                 out.println("BYE");
-                out.flush();
+                show_current_value(false); // Sends the final result
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, "WORKER - Can't say bye to #"+id+" !", e);
             }
         }
 
-        LOG.info("WORKER - Cleaning ressources for #" + id);
-        if (clientSocket != null) {
-            try {
-                clientSocket.close();
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE, "WORKER - Can't close client socket !", e);
-            }
-        }
-
+        // Closes writer
         if (out != null) {
             try {
                 out.close();
@@ -361,11 +386,22 @@ public class ServerWorker implements Runnable {
             }
         }
 
+        // Closes reader
         if (in != null) {
             try {
                 in.close();
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, "WORKER - Can't close reader on "+id+" !", e);
+            }
+        }
+
+        // Closes client socket
+        LOG.info("WORKER - Cleaning ressources for #" + id);
+        if (clientSocket != null) {
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, "WORKER - Can't close client socket !", e);
             }
         }
     }
