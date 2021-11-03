@@ -56,15 +56,16 @@ public class ServerWorker implements Runnable {
          */
 
         String line;
-        boolean shouldRun = true;
 
         out.println("Welcome to the Multi-Threaded Server.\nSend me text lines and conclude with the BYE command.");
         out.flush();
         try {
             LOG.info("Reading until client sends BYE or closes the connection...");
-            while ((shouldRun) && (line = in.readLine()) != null) {
+            while ((line = in.readLine()) != null) {
                 if (line.equalsIgnoreCase("bye")) {
-                    shouldRun = false;
+                    out.println("> Good bye!");
+                    out.flush();
+                    break;
                 }
                 out.println("> " + line.toUpperCase());
                 System.out.println("From client: " + line);
