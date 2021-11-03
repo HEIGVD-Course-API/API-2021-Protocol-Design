@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 public class Server {
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
+    private int PORT = 1010;
 
     /**
      * Main function to start the server
@@ -27,6 +28,7 @@ public class Server {
      * Start the server on a listening socket.
      */
     private void start() {
+
 
         /* TODO: implement the receptionist server here.
          *  The receptionist just creates a server socket and accepts new client connections.
