@@ -261,26 +261,30 @@ public class ServerWorker implements Runnable {
 
         LOG.info("WORKER - Reading on #"+id+" until client sends BYE or closes the connection...");
         while(!Thread.interrupted()) {
+            // Try to read line received
             try {
                 line = in.readLine();
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, "WORKER - Can't read on client #"+id+" !", e);
             }
 
+            // Check that line is valid
             if (line == null) {
                 terminaison("line == null");
                 return;
             }
 
+            // If line == "bye", end of communication
             if (line.equalsIgnoreCase("bye")) {
                 LOG.info("WORKER - Closed by client on #"+id+" !");
                 terminaison("bye");
                 return;
             }
 
+            // Splits line received to multiple
             commands = line.split(" ");
 
-            // Execute la commande reçue
+            // Execute received command
             switch (commands.length) {
                 case 1: // NUMBER
                     try {
@@ -309,7 +313,8 @@ public class ServerWorker implements Runnable {
 
                     execFunc(commands[0], commands[1], value);
                     break;
-                default:
+
+                default: // Unknown case
                     show_error(ErrorCode.UNKNOWN_COMMAND);
                     break;
             }
