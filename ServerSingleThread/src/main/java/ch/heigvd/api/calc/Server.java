@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class Server {
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
-    private int PORT = 1010;
+    private final int PORT = 1010;
 
     /**
      * Main function to start the server
@@ -35,12 +35,13 @@ public class Server {
          */
 
         // create a server socket
-        ServerSocket serverSocket;
+        ServerSocket serverSocket = null;
         Socket clientSocket;
 
         try {
             serverSocket = new ServerSocket(PORT);
         } catch (IOException exception) {
+            LOG.warning(exception.getMessage());
             return;
         }
 
@@ -49,12 +50,11 @@ public class Server {
             try {
                 clientSocket = serverSocket.accept();
                 handleClient(clientSocket);
+
             } catch (IOException exception){
-                return;
+                LOG.warning(exception.getMessage());
             }
         }
-
-
 
     }
 
@@ -76,12 +76,28 @@ public class Server {
          */
 
         try {
+            String answer;
+            BufferedReader lis = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            PrintWriter ecrit = new PrintWriter(clientSocket.getOutputStream());
 
-            BufferedReader read = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter write = new PrintWriter(clientSocket.getOutputStream());
+            ecrit.write("HELLO");
+            ecrit.flush();
+
+            while((answer = lis.readLine()) != null){
+                if( answer.contains("CALCUL")){
+                    // MISSING traitement des calculs
+                    ecrit.write("42");
+                    ecrit.flush();
+                }
+                if( answer.contains("QUITTER")){
+                    clientSocket.close();
+                    lis.close();
+                    ecrit.close();
+                }
+            }
 
         } catch (IOException exception){
-            return;
+            LOG.warning(exception.getMessage());
         }
 
     }
