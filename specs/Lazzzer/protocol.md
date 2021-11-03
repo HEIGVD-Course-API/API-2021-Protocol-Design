@@ -43,7 +43,7 @@ Si l'opération ou la commande tapée par le client n'est pas valide, il y a un 
 
 ### Exemples d'intéractions
 
-Exemple de diaglogue:
+Exemple de dialogue:
 ```
 Server >
 Welcome, you are now connected with our calculation server.

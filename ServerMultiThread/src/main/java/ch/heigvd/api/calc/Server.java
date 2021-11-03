@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 public class Server {
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
+    private final int PORT = 8069;
 
     /**
      * Main function to start the server
@@ -33,6 +34,22 @@ public class Server {
          *  For a new client connection, the actual work is done in a new thread
          *  by a new ServerWorker.
          */
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(PORT);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return;
+        }
+        while (true) {
+            try {
+                Socket clientSocket = serverSocket.accept();
+                ServerWorker worker = new ServerWorker(clientSocket);
+                new Thread(worker).start();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+            }
+        }
 
     }
 }
