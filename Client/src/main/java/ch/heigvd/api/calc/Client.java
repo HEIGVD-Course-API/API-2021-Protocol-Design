@@ -1,7 +1,12 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,20 +25,63 @@ public class Client {
     public static void main(String[] args) {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
-
+        Socket clientSocket = null;
+        BufferedReader in = null;
+        BufferedWriter out = null;
         BufferedReader stdin = null;
 
-        /* TODO: Implement the client here, according to your specification
-         *   The client has to do the following:
-         *   - connect to the server
-         *   - initialize the dialog with the server according to your specification
-         *   - In a loop:
-         *     - read the command from the user on stdin (already created)
-         *     - send the command to the server
-         *     - read the response line from the server (using BufferedReader.readLine)
-         */
+        boolean serverCanListen = false;
+        boolean shouldQuit = false;
+        String serverInput = "";
+        String userInput = "";
+        final int port = 4269;
+        final String headerEnd = "END_OF_OPERATIONS";
+        final String host = "10.192.94.57";
 
-        stdin = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            clientSocket = new Socket(host, port);
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(),
+                    StandardCharsets.UTF_8));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            stdin = new BufferedReader(new InputStreamReader(System.in));
+            while (!shouldQuit && (serverInput = in.readLine()) != null) {
+                LOG.log(Level.INFO, serverInput);
+                if (serverInput.equals(headerEnd))
+                    serverCanListen = true;
 
+                if (serverCanListen) {
+                    userInput = stdin.readLine();
+                    if (userInput.equals("QUIT")) {
+                        shouldQuit = true;
+                    } else {
+                        out.write(userInput + "\n");
+                        out.flush();
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Global error");
+        } finally {
+            try {
+                if (out != null) out.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "out BufferedReader cannot be closed");
+            }
+            try {
+                if (in != null) in.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "in BufferedReader cannot be closed");
+            }
+            try {
+                if (stdin != null) stdin.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "stdin BufferedReader cannot be closed");
+            }
+            try {
+                if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, "clientSocket cannot be closed");
+            }
+        }
     }
 }
