@@ -150,6 +150,16 @@ public class ServerWorker implements Runnable {
                                     writer.println(resultStr + result);
                                     writer.flush();
                                     break;
+                                case "DIV":
+                                    if(Double.parseDouble(words[3]) == 0.){
+                                        writer.println(error + " cannot divide by 0");
+                                        writer.flush();
+                                        break;
+                                    }
+                                    result = Double.parseDouble(words[2]) / Double.parseDouble(words[3]);
+                                    writer.println(resultStr + result);
+                                    writer.flush();
+                                    break;
                                 default:
                                     writer.println(error + " wrong operands");
                                     writer.flush();
