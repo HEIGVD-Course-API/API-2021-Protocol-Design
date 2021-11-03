@@ -12,35 +12,37 @@ refaire à chaque fois la procédure de connexion.
 - Séquence de message :
 ```
 >HELLO
-[OK] ADD or MULT?
->ADD
-[OK] What is your fisrt number?
->3
-[OK] What is your second number?
->6
-[OK] The result is 9.
-ADD or MULT?
->MULT
-[OK] What is your first number?
->4
-[OK] What is your second number?
->3
-[OK] The result is 12.
-ADD or MULT?
+[OK] Welcome. 
+HELP MENU
+Syntax : OP N1 N2
+Supported operations :
+- ADD
+- MULT
+To end the connexion, enter END
+To print the help menu, enter HELP
+Enter your calcul.
+>ADD 2 3
+[OK] The result is 5.
+Enter your calcul.
+>MULT 4 5
+[OK] The result is 20.
+Enter your calcul.
 >END
 ```
 - Sémantique :
-    - Connexion = HELLO
-    - Choix de l'opération = ADD pour addition ou MULT pour multiplication
+    - Ouvrir connexion = HELLO
+    - Choix de l'opération = ADD pour addition ou MULT pour multiplication,
+      suivi de 2 nombres entiers. Les nombres peuvent être signés.
     - Fin de la connexion = END
+    - Afficher le menu d'aide = HELP
 
 ### Specific elements
 - Opérations supportées :
     - HELLO
-    - ADD
-    - SOUS
-    - 'nombre' (peuvent être signés)
+    - ADD N1 N2
+    - MULT N1 N2
     - END
+    - HELP
 - Gestion des erreurs :
     - [OK] signifie que la requête a été acceptée.
     - [ERR] signifie qu'il y a eu un problème avec la requête.
@@ -50,17 +52,29 @@ ADD or MULT?
 ### Exemple 
 ```
 >HELLO
-[OK] ADD or MULT?
->SOUS
+[OK] Welcome. 
+HELP MENU
+Syntax : OP N1 N2
+Supported operations :
+- ADD
+- MULT
+To end the connexion, enter END
+To print the help menu, enter HELP
+Enter your calcul.
+>SOUS 3 4
 [ERR] Bad syntax
->MULT
-[OK] What is your first number?
->4
-[OK] What is your second number?
->hihi
+>ADD 2 hihi
 [ERR] Bad syntax
->3
+>HELP
+HELP MENU
+Syntax : OP N1 N2
+Supported operations :
+- ADD
+- MULT
+To end the connexion, enter END
+To print the help menu, enter HELP
+>ADD 5 4
 [OK] The result is 9.
-ADD or MULT?
+Enter your calcul.
 >END
 ```
