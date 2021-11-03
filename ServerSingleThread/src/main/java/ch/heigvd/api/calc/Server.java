@@ -47,8 +47,6 @@ public class Server {
          *  For a new client connection, the actual work is done by the handleClient method below.
          */
         Socket clientSocket = null;
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
 
         LOG.info("Starting server...");
         try {
@@ -58,17 +56,9 @@ public class Server {
                 // Blocked until a connection is made
                 clientSocket = serverSocket.accept();
 
-                reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
-                writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+                handleClient(clientSocket);
 
-                writer.write(WELCOME_MESS + HELP_MESS);
-
-                String line;
-                while (!(line = reader.readLine()).equals("END")) {
-                    writer.write(ENTER_CALCUL_MESS);
-
-                    LOG.log(Level.INFO, line);
-                }
+                clientSocket.close();
         }
 
         } catch (IOException e) {
@@ -81,7 +71,7 @@ public class Server {
      *
      * @param clientSocket with the connection with the individual client.
      */
-    private void handleClient(Socket clientSocket) {
+    private void handleClient(Socket clientSocket) throws IOException {
 
         /* TODO: implement the handling of a client connection according to the specification.
          *   The server has to do the following:
@@ -93,5 +83,43 @@ public class Server {
          *     - Send to result to the client
          */
 
+        BufferedReader reader = null;
+        BufferedWriter writer = null;
+
+        reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+        writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+
+        while (!reader.readLine().equals("HELLO")) {}
+
+        writer.write(WELCOME_MESS + HELP_MESS);
+
+        String line;
+        while (!(line = reader.readLine()).equals("END")) {
+            writer.write(ENTER_CALCUL_MESS);
+            writer.flush();
+
+            String[] commands = line.split(" ");
+
+            //check operation
+            switch (commands[0]) {
+                case "ADD" :
+                    LOG.log(Level.INFO, "Add operation");
+                    writer.write("The result is " + (Integer.parseInt(commands[1]) + Integer.parseInt(commands[2])));
+                    break;
+                case "MULT" :
+                    LOG.log(Level.INFO, "Mult operation");
+                    writer.write("The result is " + (Integer.parseInt(commands[1]) * Integer.parseInt(commands[2])));
+                    break;
+                case "HElP" :
+                    LOG.log(Level.INFO, "Asked for help");
+                    writer.write(HELP_MESS);
+                    break;
+            }
+
+            writer.flush();
+
+            writer.close();
+            reader.close();
+        }
     }
 }
