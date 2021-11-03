@@ -58,7 +58,8 @@ public class Client {
 
             LOG.log(Level.INFO, "You've entered: " + n1 + " " + n2 + " " + op);
 
-            out.write(n1 + " " + n2 + " " + op);
+            out.write(op + " " + n1 + " " + n2 + "\n");
+            out.flush();
 
             LOG.log(Level.INFO, in.readLine());
 
