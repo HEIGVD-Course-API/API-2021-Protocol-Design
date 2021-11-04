@@ -38,14 +38,18 @@ public class Server {
     static private void end() throws InterruptedException {
         LOG.info("SERVER - Stopping server");
 
-        // Calls all workers' end function
+        // Interrupt threads
+        for (Thread thread : threads) {
+            thread.interrupt();
+        }
+
+        // Calls all workers' end function to clean ressources
         for (ServerWorker worker : workers) {
             worker.end_client("Server");
         }
 
-        // Interrupt and wait for end of threads
+        // Wait for end of threads
         for (Thread thread : threads) {
-            thread.interrupt();
             thread.join();
         }
 
@@ -99,7 +103,10 @@ public class Server {
                 workers.add(worker);
                 thread.start();
             } catch (IOException e) {
-                LOG.log(Level.SEVERE, "SERVER - Can't accept new client !", e);
+                if (running)
+                    LOG.log(Level.SEVERE, "SERVER - Can't accept new client !", e);
+                else
+                    LOG.info("Server stopped.");
             }
         }
     }
