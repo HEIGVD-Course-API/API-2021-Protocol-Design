@@ -58,23 +58,24 @@ public class Client {
                 LOG.log(Level.INFO, line);
             }while (!Objects.equals(line = in.readLine(), "Waiting for a request..."));
 
-            LOG.log(Level.INFO,"entre boucle");
 
+            String LineSend;
             do{
-                LOG.log(Level.INFO, "*** Write and Sent command from the user ***");
-                out.write(stdin.readLine());
+                //LOG.log(Level.INFO, "*** Write and Sent command from the user ***");
+                LineSend = stdin.readLine() + "\n";
+                out.write(LineSend);
                 out.flush();
 
-                LOG.log(Level.INFO, "*** Print command received from the server ***");
+                //LOG.log(Level.INFO, "*** Print command received from the server ***");
 
                 line = in.readLine();
                 do{
                     LOG.log(Level.INFO, line);
-                }while (!Objects.equals(line = in.readLine(), "Waiting for a request..."));
+                }while (!Objects.equals(line = in.readLine(), "Waiting for a request...") || in.readLine() != null );
 
-            }while(!Objects.equals(stdin.readLine(), "QUIT"));
+            }while(!Objects.equals(LineSend, "QUIT"));
 
-            LOG.log(Level.INFO,"apres boucle");
+            LOG.log(Level.INFO, "end");
 
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.toString(), ex);
