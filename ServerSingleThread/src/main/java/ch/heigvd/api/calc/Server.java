@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static java.lang.Integer.parseInt;
+import static java.lang.Double.parseDouble;
 
 /**
  * Calculator server implementation - single threaded
@@ -30,10 +30,6 @@ public class Server {
      * Start the server on a listening socket.
      */
     private void start() {
-        /* TODO: implement the receptionist server here.
-         *  The receptionist just creates a server socket and accepts new client connections.
-         *  For a new client connection, the actual work is done by the handleClient method below.
-         */
         ServerSocket serverSocket;
         Socket clientSocket = null;
 
@@ -46,9 +42,8 @@ public class Server {
 
         while (true) {
             try {
-                LOG.log(Level.INFO, "Single-threaded: Waiting for a new client on port {0}", PORT);
+                LOG.log(Level.INFO, "Single-threaded: Waiting for a new client on port " + PORT);
                 clientSocket = serverSocket.accept();
-
                 handleClient(clientSocket);
 
             } catch (IOException ex) {
@@ -64,17 +59,6 @@ public class Server {
      * @param clientSocket with the connection with the individual client.
      */
     private void handleClient(Socket clientSocket) {
-
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
-
         BufferedWriter out = null;
         BufferedReader in = null;
 
@@ -84,69 +68,67 @@ public class Server {
 
             String line;
 
-            out.write("Connected to the online calculator.\n" +
-                    "Possible requests are :\n " +
-                    "ADD X Y\n" +
-                    "SUB X Y\n" +
-                    "MULT X Y\n" +
-                    "DIV X Y\n" +
-                    "QUIT\n" +
-                    "Waiting for a request...\n");
-
+            out.write("Connected to the online calculator.\n Possible requests are :\nADD X Y\nSUB X Y\nMULT X Y\nDIV X Y\nQUIT\nWaiting for a request...\n");
             out.flush();
 
             boolean quit = false;
 
             LOG.info("Reading until client sends QUIT or closes the connection...");
-            while ((line = in.readLine()) != null && !quit) {
+            while (!quit) {
+                line = in.readLine();
+                LOG.log(Level.INFO, line);
                 String[] request = line.toLowerCase().split(" ");
                 if (request.length > 3 || request.length == 2) {
-                    out.write("ERROR : wrong number of arguments\n");
+                    out.write("ERROR : wrong number of arguments\nWaiting for a request...\n");
                     out.flush();
-                    break;
-                }
-                switch (request[0]) {
-                    case "add":
-                        if (!checkSyntax(request)) {
-                            out.write("ERROR : wrong syntax \n");
+                } else {
+                    switch (request[0]) {
+                        case "add":
+                            if (!checkSyntax(request)) {
+                                out.write("ERROR : wrong syntax \nWaiting for a request...\n");
+                                out.flush();
+                                break;
+                            }
+                            out.write("RESULT " + (parseDouble(request[1]) + parseDouble(request[2])) + "\nWaiting for a request...\n");
                             out.flush();
-                        }
-                        out.write("RESULT " + (parseInt(request[1]) + parseInt(request[2])) + "\n");
-                        out.flush();
-                        break;
-                    case "sub":
-                        if (!checkSyntax(request)) {
-                            out.write("ERROR : wrong syntax \n");
+                            break;
+                        case "sub":
+                            if (!checkSyntax(request)) {
+                                out.write("ERROR : wrong syntax \nWaiting for a request...\n");
+                                out.flush();
+                                break;
+                            }
+                            out.write("RESULT " + (parseDouble(request[1]) - parseDouble(request[2])) + "\nWaiting for a request...\n");
                             out.flush();
-                        }
-                        out.write("RESULT " + (parseInt(request[1]) - parseInt(request[2])) + "\n");
-                        out.flush();
-                        break;
-                    case "mult":
-                        if (!checkSyntax(request)) {
-                            out.write("ERROR : wrong syntax \n");
+                            break;
+                        case "mult":
+                            if (!checkSyntax(request)) {
+                                out.write("ERROR : wrong syntax \nWaiting for a request...\n");
+                                out.flush();
+                                break;
+                            }
+                            out.write("RESULT " + (parseDouble(request[1]) * parseDouble(request[2])) + "\nWaiting for a request...\n");
                             out.flush();
-                        }
-                        out.write("RESULT " + (parseInt(request[1]) * parseInt(request[2])) + "\n");
-                        out.flush();
-                        break;
-                    case "div":
-                        if (!checkSyntax(request)) {
-                            out.write("ERROR : wrong syntax \n");
+                            break;
+                        case "div":
+                            if (!checkSyntax(request)) {
+                                out.write("ERROR : wrong syntax \nWaiting for a request...\n");
+                                out.flush();
+                                break;
+                            }
+                            out.write("RESULT " + (parseDouble(request[1]) / parseDouble(request[2])) + "\nWaiting for a request...\n");
                             out.flush();
-                        }
-                        out.write("RESULT " + (parseInt(request[1]) / parseInt(request[2])) + "\n");
-                        out.flush();
-                        break;
-                    case "quit":
-                        quit = true;
-                        out.write("CLOSING\n");
-                        out.flush();
-                        break;
-                    default:
-                        out.write("ERROR : unknown command\n");
-                        out.flush();
-                        break;
+                            break;
+                        case "quit":
+                            quit = true;
+                            out.write("CLOSING\n");
+                            out.flush();
+                            break;
+                        default:
+                            out.write("ERROR : unknown command\nWaiting for a request...\n");
+                            out.flush();
+                            break;
+                    }
                 }
             }
 
@@ -179,8 +161,8 @@ public class Server {
             return false;
         }
         try {
-            parseInt(request[1]);
-            parseInt(request[2]);
+            parseDouble(request[1]);
+            parseDouble(request[2]);
         } catch (NumberFormatException nfe) {
             return false;
         }
