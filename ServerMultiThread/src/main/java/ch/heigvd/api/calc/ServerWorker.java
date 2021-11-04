@@ -381,8 +381,10 @@ public class ServerWorker implements Runnable {
         // Send end message to client
         if (out != null) {
             try {
-                out.println("BYE");
+                out.print("Last value : ");
                 show_current_value(false); // Sends the final result
+                out.println("BYE");
+                out.flush();
             } catch (Exception e) {
                 LOG.log(Level.SEVERE, "WORKER - Can't say bye to #"+id+" !", e);
             }
