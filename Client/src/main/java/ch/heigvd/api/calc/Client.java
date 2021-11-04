@@ -1,7 +1,8 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.Socket;
+import java.nio.Buffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +35,32 @@ public class Client {
          */
 
         stdin = new BufferedReader(new InputStreamReader(System.in));
+
+        Socket clientSocket = null;
+        BufferedWriter out = null;
+        BufferedReader in = null;
+
+        try {
+            clientSocket = new Socket("localhost", 23000);
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            String calcul;
+            LOG.log(Level.INFO, "Entrez un calcul");
+            calcul = stdin.readLine();
+            out.write(calcul);
+            out.flush();
+
+            LOG.log(Level.INFO, "Votre calcul a été envoyé");
+            String response = in.readLine();
+            LOG.log(Level.INFO, "Réponse1 : " + response);
+
+            LOG.log(Level.INFO, "FIN");
+            clientSocket.close();
+
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, e.toString(), e);
+        }
 
     }
 }
