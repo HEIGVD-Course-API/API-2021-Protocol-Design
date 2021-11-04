@@ -48,7 +48,7 @@ public class Client {
             String calcul;
             LOG.log(Level.INFO, "Entrez un calcul");
             calcul = stdin.readLine();
-            out.write(calcul);
+            out.write(calcul + "\n");
             out.flush();
 
             LOG.log(Level.INFO, "Votre calcul a été envoyé");
