@@ -1,5 +1,6 @@
 package ch.heigvd.api.calc;
 
+import javax.naming.directory.InvalidAttributeValueException;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +13,10 @@ import java.util.logging.Logger;
 public class ServerWorker implements Runnable {
 
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
+    private final String RESULT = "RESULT IS ";
+    private Socket clientSocket;
+    private BufferedReader in = null;
+    private BufferedWriter out = null;
 
     /**
      * Instantiation of a new worker mapped to a socket
@@ -22,10 +27,14 @@ public class ServerWorker implements Runnable {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
-        /* TODO: prepare everything for the ServerWorker to run when the
-         *   server calls the ServerWorker.run method.
-         *   Don't call the ServerWorker.run method here. It has to be called from the Server.
-         */
+        try {
+            this.clientSocket = clientSocket;
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+        }  catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -35,15 +44,63 @@ public class ServerWorker implements Runnable {
     @Override
     public void run() {
 
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
+        try {
 
+            String welcome = "WELCOME \nSYNTAX: REQUEST {OP} {V1} {V2} \n" +
+                    "AVAILABLE_OPS \nADD V1 V2 \nMUL V1 V2 \nEND_OF_OPS \n";
+            out.write(welcome);
+            out.flush();
+            System.out.println("Message sent");
+
+            while (!clientSocket.isClosed()) {
+                // ... Read and handle message
+                String line;
+                while ( (line = in.readLine()) != null ) {
+                    if (line.equalsIgnoreCase("END")) {
+                        out.write("END_OF_COMMUNICATION...BYE\n");
+                        out.flush();
+                        break;
+                    }
+                    String[] parts = line.split(" ");
+                    String result = "";
+                    switch (parts[0]) {
+                        case "ADD":
+                            try {
+                                result = add(Integer.parseInt(parts[1]),
+                                        Integer.parseInt(parts[2]));
+                            } catch (InvalidAttributeValueException e) {
+                                LOG.log(Level.SEVERE, e.toString(), e);
+                            }
+                            break;
+                        case "MUL":
+                            try {
+                                result = multiply(Integer.parseInt(parts[1]),
+                                        Integer.parseInt(parts[2]));
+                            } catch (InvalidAttributeValueException e) {
+                                LOG.log(Level.SEVERE, e.toString(), e);
+                            }
+                            break;
+                    }
+                    out.write(result);
+                    out.flush();
+                }
+                clientSocket.close();
+                in.close();
+                out.close();
+            }
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, e.toString(), e);
+        }
+
+
+    }
+
+
+    private String add(int v1, int v2) throws InvalidAttributeValueException {
+        return RESULT + (v1 + v2) + '\n';
+    }
+
+    private String multiply(int v1, int v2) throws InvalidAttributeValueException {
+        return RESULT + (v1 * v2) + '\n';
     }
 }
