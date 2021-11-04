@@ -54,8 +54,10 @@ public class ServerWorker implements Runnable {
      */
     private void show_current_value(boolean show_prompt) {
         out.println(current_value);
-        if (show_prompt) out.print("> ");
-        out.flush();
+        if (show_prompt)
+            show_prompt();
+        else
+            out.flush();
     }
 
     /**
@@ -158,6 +160,11 @@ public class ServerWorker implements Runnable {
         }
 
         out.println("ERR: " + code + " " + msg);
+        show_prompt();
+    }
+
+    private void show_prompt() {
+        out.print("> ");
         out.flush();
     }
 
@@ -303,6 +310,7 @@ public class ServerWorker implements Runnable {
         out.println("Supported operators : " + Operator.list() + "\n");
         out.println("'OP FUNC value' : Execute current_value OP FUNC(value)");
         out.println("Supported functions : " + Function.list() + "\n");
+        out.print("Current value : ");
 
         // Set starting value to 0 and send it to client
         set((double) 0);
