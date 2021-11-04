@@ -325,7 +325,10 @@ public class ServerWorker implements Runnable {
             try {
                 line = in.readLine();
             } catch (IOException e) {
-                LOG.log(Level.SEVERE, "WORKER - Can't read on client #"+id+" !", e);
+                if (ended)
+                    LOG.info("CLIENT - Thread stopped");
+                else
+                    LOG.log(Level.SEVERE, "WORKER - Can't read on client #"+id+" !", e);
             }
 
             // Check that line is valid
