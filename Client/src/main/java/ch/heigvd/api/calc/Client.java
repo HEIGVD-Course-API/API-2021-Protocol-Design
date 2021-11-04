@@ -1,10 +1,10 @@
 package ch.heigvd.api.calc;
 
 import java.io.*;
+import java.net.Socket;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.net.Socket;
 
 /**
  * Calculator client implementation
@@ -40,7 +40,6 @@ public class Client {
          */
 
 
-
         try {
             //connection to the server
             clientSocket = new Socket(IP_SERVER, PORT);
@@ -54,13 +53,13 @@ public class Client {
 
             //hello from server
             String line = in.readLine();
-            do{
+            do {
                 LOG.log(Level.INFO, line);
-            }while (!Objects.equals(line = in.readLine(), "Waiting for a request..."));
+            } while (!Objects.equals(line = in.readLine(), "Waiting for a request..."));
 
 
             String LineSend;
-            do{
+            do {
                 //LOG.log(Level.INFO, "*** Write and Sent command from the user ***");
                 LineSend = stdin.readLine() + "\n";
                 out.write(LineSend);
@@ -69,11 +68,11 @@ public class Client {
                 //LOG.log(Level.INFO, "*** Print command received from the server ***");
 
                 line = in.readLine();
-                do{
+                do {
                     LOG.log(Level.INFO, line);
-                }while (!Objects.equals(line = in.readLine(), "Waiting for a request...") || in.readLine() != null);
+                } while (!Objects.equals(line = in.readLine(), "Waiting for a request...") || in.readLine() != null);
 
-            }while(in.readLine() != null);
+            } while (in.readLine() != null);
 
             in.close();
             out.close();
@@ -93,7 +92,7 @@ public class Client {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
             try {
-                if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
+                if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
