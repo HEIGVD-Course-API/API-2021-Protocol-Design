@@ -32,22 +32,14 @@ public class Client {
         BufferedReader usrin = new BufferedReader(new InputStreamReader(System.in));
 
 
-        /* TODO: Implement the client here, according to your specification
-         *   The client has to do the following:
-         *   - connect to the server
-         *   - initialize the dialog with the server according to your specification
-         *   - In a loop:
-         *     - read the command from the user on stdin (already created)
-         *     - send the command to the server
-         *     - read the response line from the server (using BufferedReader.readLine)
-         */
+
         try {
             clientSocket = new Socket(HOST, PORT);
             System.out.println("Connected to \"" + clientSocket.getInetAddress() + "\"");
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            String line, response;
+            String line = "", response;
 
             while ((response = in.readLine()) != null) {
 
@@ -59,14 +51,15 @@ public class Client {
                     }
 
                 System.out.println(response);
+
+                if (line.startsWith("END"))
+                    break;
+
                 System.out.print("> ");
                 line = usrin.readLine();
 
                 out.write(line + '\n');
                 out.flush();
-
-                if (line.startsWith("END"))
-                    break;
             }
 
         } catch (IOException e){
