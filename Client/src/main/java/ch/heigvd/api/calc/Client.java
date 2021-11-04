@@ -1,9 +1,10 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.net.Socket;
 
 /**
  * Calculator client implementation
@@ -11,6 +12,8 @@ import java.util.logging.Logger;
 public class Client {
 
     private static final Logger LOG = Logger.getLogger(Client.class.getName());
+    private static final int PORT = 4242;
+    private static final String IP_SERVER = "10.192.92.95";
 
     /**
      * Main function to run client
@@ -22,8 +25,11 @@ public class Client {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
         BufferedReader stdin = null;
+        Socket clientSocket = null;
+        BufferedWriter out = null;
+        BufferedReader in = null;
 
-        /* TODO: Implement the client here, according to your specification
+        /* Implement the client here, according to your specification
          *   The client has to do the following:
          *   - connect to the server
          *   - initialize the dialog with the server according to your specification
@@ -33,7 +39,48 @@ public class Client {
          *     - read the response line from the server (using BufferedReader.readLine)
          */
 
-        stdin = new BufferedReader(new InputStreamReader(System.in));
 
+
+        try {
+            //connection to the server
+            clientSocket = new Socket(IP_SERVER, PORT);
+            //sender
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            //receiver from the server
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            //receiver from the prompt
+            stdin = new BufferedReader(new InputStreamReader(System.in));
+
+            //initialize the dialog
+            out.write("HELLO");
+            out.flush();
+
+            while(!Objects.equals(stdin.readLine(), "BYE")){
+                LOG.log(Level.INFO, "*** Read and Sent command from the user ***");
+                out.write(stdin.readLine());
+                out.flush();
+                LOG.log(Level.INFO, "*** Print command received from the server ***");
+                System.out.println(in.readLine());
+            }
+
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, ex.toString(), ex);
+        } finally {
+            try {
+                if (out != null) out.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+            try {
+                if (in != null) in.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+            try {
+                if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+        }
     }
 }
