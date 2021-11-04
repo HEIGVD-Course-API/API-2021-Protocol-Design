@@ -9,6 +9,9 @@ public enum ErrorCode {
     UNKNOWN_COMMAND,    // Received unknow command (malformated or syntax error)
     INVALID_INPUT,      // Invalid input on number
     UNKNOWN_OPERATOR,   // Unknown operator, not in OP
-    UNKNOWN_FUNC        // Unknown func, not in FUNC
+    UNKNOWN_FUNC,        // Unknown func, not in FUNC
+    BYE,
+    OK,
+    SERVER_ERROR
 }
 
