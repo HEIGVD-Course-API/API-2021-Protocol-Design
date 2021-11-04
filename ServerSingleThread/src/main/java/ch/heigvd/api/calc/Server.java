@@ -3,13 +3,36 @@ package ch.heigvd.api.calc;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Calculator server implementation - single threaded
  */
 public class Server {
+    private final String WELCOME_MSG= "Welcome \n  FOLLOWING OPERATIONS ARE AVAILABLE\n" +
+                                      "            ADD\n" +
+                   "            SUB\n" +
+            "            MULT\n" +
+            "            DIV";
+
+    //No enum class sadly....
+    public static final int ADD =  1;
+    public static final int SUB =  2;
+    public static final int MULT = 3;
+    public static final int DIV =  4;
+    public static final int UNKNOWN= -1;
+    public static final String UNKNOWN_MSG = "Unknown Operation \n";
+    public static final int WRONG_ARGUMENTS= -2;
+    public static final String WRONG_ARG_MSG = "Two numbers are required to process your calculus !\n";
+
+
+    private final String UNKNOWN_OPERATION = "ERROR 1 UNKNOWN OPERATION";
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
 
@@ -31,26 +54,15 @@ public class Server {
          *  The receptionist just creates a server socket and accepts new client connections.
          *  For a new client connection, the actual work is done by the handleClient method below.
          */
-
         ServerSocket serverSocket = null;
         Socket clientSocket = null;
-        BufferedReader in = null;
-        BufferedWriter out = null;
-
 
         try {
-            serverSocket = new ServerSocket(1337);
+            serverSocket = new ServerSocket(1339);
             while(true){
                 System.out.println("SingleThreaded: Waiting for client to connect");
                 clientSocket = serverSocket.accept();
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-                out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
-                out.write("Welcome to the Single-Threaded Server.\nSend me text lines and conclude with the BYE command.\n");
-                out.flush();
-
-                clientSocket.close();
-                in.close();
-                out.close();
+                handleClient(clientSocket);
             }
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, null, ex);
@@ -59,22 +71,112 @@ public class Server {
 
     }
 
+    private void sendWelcomeMessage(BufferedWriter out) throws IOException {
+
+        out.write(WELCOME_MSG);
+        out.flush();
+
+    }
+    private Calculus parseClientMessage(BufferedReader in) throws IOException {
+
+        ArrayList<Integer> numbers = new ArrayList<>();
+        Calculus calculus = new Calculus(numbers, -1);
+
+        String clientRequest = in.readLine();
+
+        Scanner scanner = new Scanner(clientRequest).useDelimiter("[^0-9]+");
+        while (scanner.hasNextInt())
+            calculus.numbers.add(scanner.nextInt());
+
+        String operation = clientRequest.replaceAll("[^a-zA-Z]+", "");
+
+        if (calculus.numbers.size() == 2) {
+            switch (operation) {
+                case "ADD":
+                    calculus.operation = ADD;
+                    break;
+                case "SUB":
+                    calculus.operation = SUB;
+                    break;
+                case "MULT":
+                    calculus.operation = MULT;
+                    break;
+                case "DIV":
+                    calculus.operation = DIV;
+                    break;
+                default:
+                    calculus.operation = UNKNOWN;
+            }
+
+        }else{
+            calculus.operation = WRONG_ARGUMENTS;
+        }
+    return calculus;
+    }
+    private int processCalculus(Calculus calculus){
+
+        switch(calculus.operation){
+            case ADD:
+                return calculus.numbers.get(0) + calculus.numbers.get(1);
+            case SUB:
+                return calculus.numbers.get(0) - calculus.numbers.get(1);
+            case MULT:
+                return calculus.numbers.get(0) * calculus.numbers.get(1);
+            case DIV:
+                return calculus.numbers.get(0) / calculus.numbers.get(1);
+            default:
+                //this case is never reached
+                return 0;
+        }
+
+    }
+    private void handleError(int returnCode,BufferedWriter out) throws IOException {
+
+        switch(returnCode){
+            case UNKNOWN:
+                out.write(UNKNOWN_MSG);
+                break;
+            case WRONG_ARGUMENTS:
+                out.write(WRONG_ARG_MSG);
+                break;
+            default:
+                out.write("Something strange happened here...\n ");
+
+        }
+        out.flush();
+        //TODO : Throw qqch qui ferme le clientsocket le in et le out !
+
+    }
+
     /**
      * Handle a single client connection: receive commands and send back the result.
      *
      * @param clientSocket with the connection with the individual client.
      */
-    private void handleClient(Socket clientSocket) {
+    private void handleClient(Socket clientSocket) throws IOException {
 
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
+        BufferedReader in = null;
+        BufferedWriter out = null;
+        Calculus currentCalculus;
+
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+        out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+        sendWelcomeMessage(out);
+        currentCalculus = parseClientMessage(in);
+
+        //If something went wrong during parsing
+        if(currentCalculus.operation < 0){
+            handleError(currentCalculus.operation, out);
+        }
+
+        out.write("Answer : " + processCalculus(currentCalculus) + "\n" );
+        out.flush();
+
+        out.write("Thank u brother ! \n");
+        out.flush();
+        clientSocket.close();
+        in.close();
+        out.close();
 
     }
 }
