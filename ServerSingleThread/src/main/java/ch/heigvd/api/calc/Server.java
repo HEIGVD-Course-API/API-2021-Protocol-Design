@@ -32,6 +32,31 @@ public class Server {
          *  For a new client connection, the actual work is done by the handleClient method below.
          */
 
+        ServerSocket serverSocket = null;
+        Socket clientSocket = null;
+        BufferedReader in = null;
+        BufferedWriter out = null;
+
+
+        try {
+            serverSocket = new ServerSocket(1337);
+            while(true){
+                System.out.println("SingleThreaded: Waiting for client to connect");
+                clientSocket = serverSocket.accept();
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+                out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+                out.write("Welcome to the Single-Threaded Server.\nSend me text lines and conclude with the BYE command.\n");
+                out.flush();
+
+                clientSocket.close();
+                in.close();
+                out.close();
+            }
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return;
+        }
+
     }
 
     /**
