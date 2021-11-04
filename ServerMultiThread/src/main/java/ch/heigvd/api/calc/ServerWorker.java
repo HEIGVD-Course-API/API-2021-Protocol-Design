@@ -57,6 +57,8 @@ public class ServerWorker implements Runnable {
                 String line;
                 while ( (line = in.readLine()) != null ) {
                     if (line.equalsIgnoreCase("END")) {
+                        out.write("END_OF_COMMUNICATION...BYE\n");
+                        out.flush();
                         break;
                     }
                     String[] parts = line.split(" ");
