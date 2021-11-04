@@ -71,11 +71,13 @@ public class Client {
                 line = in.readLine();
                 do{
                     LOG.log(Level.INFO, line);
-                }while (!Objects.equals(line = in.readLine(), "Waiting for a request...") || in.readLine() != null );
+                }while (!Objects.equals(line = in.readLine(), "Waiting for a request...") || in.readLine() != null);
 
-            }while(!Objects.equals(LineSend, "QUIT"));
+            }while(in.readLine() != null);
 
-            LOG.log(Level.INFO, "end");
+            in.close();
+            out.close();
+            clientSocket.close();
 
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.toString(), ex);
