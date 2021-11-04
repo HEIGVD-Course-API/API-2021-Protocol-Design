@@ -51,17 +51,30 @@ public class Client {
             //receiver from the prompt
             stdin = new BufferedReader(new InputStreamReader(System.in));
 
-            //initialize the dialog
-            out.write("HELLO");
-            out.flush();
 
-            while(!Objects.equals(stdin.readLine(), "BYE")){
-                LOG.log(Level.INFO, "*** Read and Sent command from the user ***");
+            //hello from server
+            String line = in.readLine();
+            do{
+                LOG.log(Level.INFO, line);
+            }while (!Objects.equals(line = in.readLine(), "Waiting for a request..."));
+
+            LOG.log(Level.INFO,"entre boucle");
+
+            do{
+                LOG.log(Level.INFO, "*** Write and Sent command from the user ***");
                 out.write(stdin.readLine());
                 out.flush();
+
                 LOG.log(Level.INFO, "*** Print command received from the server ***");
-                System.out.println(in.readLine());
-            }
+
+                line = in.readLine();
+                do{
+                    LOG.log(Level.INFO, line);
+                }while (!Objects.equals(line = in.readLine(), "Waiting for a request..."));
+
+            }while(!Objects.equals(stdin.readLine(), "QUIT"));
+
+            LOG.log(Level.INFO,"apres boucle");
 
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.toString(), ex);
