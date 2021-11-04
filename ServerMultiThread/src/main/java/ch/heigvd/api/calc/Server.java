@@ -10,6 +10,8 @@ import java.util.logging.Logger;
  * Calculator server implementation - multi-thread
  */
 public class Server {
+    
+    private final int PORT = 3003;
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
 
@@ -33,6 +35,26 @@ public class Server {
          *  For a new client connection, the actual work is done in a new thread
          *  by a new ServerWorker.
          */
+        
+        ServerSocket serverSocket = null;
+        try {
+            // Create the server socket
+            serverSocket = new ServerSocket(PORT);
+            
+            // Waiting for new clients to connect
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+
+                // Create new thread to handle this client
+                ServerWorker worker = new ServerWorker(clientSocket); // create worker
+                Thread thread = new Thread(worker); // create thread with worker
+                thread.start(); // start thread
+                thread.run();
+            }
+        }
+        catch (IOException e){
+            System.out.println(e.getMessage());
+        }
 
     }
 }
