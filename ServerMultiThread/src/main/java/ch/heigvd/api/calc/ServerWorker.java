@@ -1,12 +1,14 @@
 package ch.heigvd.api.calc;
 
-import ch.heigvd.api.calc.operation.Addition;
-import ch.heigvd.api.calc.operation.Multiplication;
-import ch.heigvd.api.calc.operation.Operation;
+import ch.heigvd.api.calc.operation.*;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,15 +18,18 @@ import java.util.logging.Logger;
 public class ServerWorker implements Runnable {
 
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
+    private static final Map<String, Operation> operations = new HashMap<>() {{
+        put("add", new Addition());
+        put("mul", new Multiplication());
+        put("div", new Division());
+        put("mod", new Modulus());
+        put("factorial", new Factorial());
+    }};
+    private final static String END_LINE = "\r\n";
 
     private Socket clientSocket;
     private BufferedReader in = null;
     private PrintWriter out = null;
-
-    private static final Map<String, Operation> operations = new HashMap<>() {{
-        put("add", new Addition());
-        put("mul", new Multiplication());
-    }};
 
     /**
      * Instantiation of a new worker mapped to a socket
@@ -44,6 +49,42 @@ public class ServerWorker implements Runnable {
         }
     }
 
+    private String errorMsg(int code, String message) {
+        return String.format("err %d %s", code, message);
+    }
+
+    private void welcomeMsg() {
+        out.printf("welcome%s", END_LINE);
+
+        // Send all operations available
+        out.printf("disp op%s", END_LINE);
+        for (Map.Entry<String, Operation> operation : operations.entrySet()) {
+            out.printf("%s %d%s", operation.getKey(), operation.getValue().getNbOperands(), END_LINE);
+        }
+        out.printf("end%s", END_LINE);
+    }
+
+    private String processCommand(String[] args) {
+        // Verify that the operation exits.
+        if (!operations.containsKey(args[0])) {
+            return errorMsg(1, String.format("'%s' is not a known operation.", args[0]));
+        }
+
+        // Verify that the operation has the corresponding number of arguments.
+        var op = operations.get(args[0]);
+        if (op.getNbOperands() != args.length - 1) {
+            return errorMsg(2, "Too few or too much operands.");
+        }
+
+        // Do the operation and return the result.
+        try {
+            return String.format("res %s", op.doOperation(args));
+        } catch (Exception ex) {
+            // Will catch general error, like parse error.
+            return errorMsg(3, ex.getMessage());
+        }
+    }
+
     /**
      * Run method of the thread.
      */
@@ -52,33 +93,33 @@ public class ServerWorker implements Runnable {
         String line;
 
         try {
-            out.println("welcome");
-            out.println("disp op");
-            for (Map.Entry<String, Operation> operation : operations.entrySet()) {
-                out.println(operation.getKey() + " " + operation.getValue().getNbOperands());
-            }
-            out.println("end");
+            // Send welcome message.
+            welcomeMsg();
             out.flush();
 
-            while((line = in.readLine()) != null) {
+            // Wait for client message.
+            while ((line = in.readLine()) != null) {
                 if (line.equalsIgnoreCase("bye")) {
                     break;
                 }
 
-                String[]  command = line.split(" ");
-                if (operations.containsKey(command[0])) {
-                    var op = operations.get(command[0]);
-                    if (op.getNbOperands() == command.length - 1) {
-                        out.println(op.doOperation(command));
-                    }
-                } else {
+                // Split the message to process it.
+                String[] command = line.split(" ");
 
+                // Do nothing if there's nothing.
+                if (command.length == 0) {
+                    continue;
                 }
+
+                // Process the command and send the response.
+                out.printf("%s%s", processCommand(command), END_LINE);
                 out.flush();
+                out.println();
             }
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         } finally {
+            // Close all connections.
             if (in != null) {
                 try {
                     in.close();
@@ -99,16 +140,5 @@ public class ServerWorker implements Runnable {
                 }
             }
         }
-
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
-
     }
 }
