@@ -33,6 +33,15 @@ public class Server {
          *  For a new client connection, the actual work is done in a new thread
          *  by a new ServerWorker.
          */
+        /*try (ServerSocket serverSocket = new ServerSocket(2341)) {
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
 
+                Thread worker = new Thread(new ServerWorker(clientSocket));
+                worker.start();
+            }
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, "Error while accepting client connection", ex);
+        }*/
     }
 }

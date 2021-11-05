@@ -3,6 +3,7 @@ package ch.heigvd.api.calc;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +36,7 @@ public class Server {
          *  The receptionist just creates a server socket and accepts new client connections.
          *  For a new client connection, the actual work is done by the handleClient method below.
          */
-        ServerSocket server = null;
+        ServerSocket server;
         try {
              server = new ServerSocket(2341);
         }catch (IOException e){
@@ -44,7 +45,7 @@ public class Server {
         }
 
         while (true) {
-            Socket client = null;
+            Socket client;
 
             try {
                 client = server.accept();
@@ -73,22 +74,24 @@ public class Server {
          *     - Handle the message
          *     - Send to result to the client
          */
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
+        BufferedReader reader;
+        BufferedWriter writer;
         String rl =null;
-        String request = null;
+        String request;
         do {
             try {
-                reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-                writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+                reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+                writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
                 request = reader.readLine();
+                if(request == null || request.toLowerCase().contains("stop")){
+                    break;
+                }
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, "Error while reading from client", e);
                 return;
             }
-            assert request != null;
             String[] tokens = request.split(";");
-            double result = 0.0;
+            double result;
             try {
                 result = compute(tokens);
                 writer.write(String.valueOf(result)+'\n');
@@ -103,13 +106,7 @@ public class Server {
                     return;
                 }
             }
-            try{
-                rl = reader.readLine();
-            }catch (IOException e){
-                LOG.log(Level.SEVERE, "Error while reading from client", e);
-                return;
-            }
-        } while ( rl.toLowerCase().contains("stop"));
+        } while (!clientSocket.isClosed());
         try {
             clientSocket.close();
         }catch (IOException e){
