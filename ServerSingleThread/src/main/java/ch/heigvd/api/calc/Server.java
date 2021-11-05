@@ -76,7 +76,7 @@ public class Server {
          */
         BufferedReader reader;
         BufferedWriter writer;
-        String rl =null;
+
         String request;
         do {
             try {
