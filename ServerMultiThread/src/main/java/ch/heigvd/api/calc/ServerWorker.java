@@ -67,12 +67,8 @@ public class ServerWorker implements Runnable {
         boolean shouldRun = true;
         LOG.info("Welcome to the Multi-Threaded Server.\nSend me your operation and conclude with the Bye command.");
 
-        BufferedReader in = null;
-        BufferedWriter out = null;
 
         try {
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
 
             LOG.info("Reading until client sends BYE or closes the connection...");
             while ((shouldRun) && (line = in.readLine()) != null) {
@@ -138,11 +134,7 @@ public class ServerWorker implements Runnable {
                 }
             }
             if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ex1) {
-                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
-                }
+                out.close();
             }
             try {
                 clientSocket.close();
