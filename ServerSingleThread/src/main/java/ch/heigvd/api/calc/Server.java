@@ -73,17 +73,21 @@ public class Server {
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
 
             String line;
-            //out.write("HELLO\n");
-            LOG.log(Level.INFO, "Un client est connecté");
+            LOG.log(Level.INFO, "Open connection with client");
+
+            out.write("--- Welcome to the calculator ---\n" +
+                    "Please input your calculation :\r\n");
             out.flush();
 
-            while (!(line = in.readLine()).equals("quit") ) {
-                LOG.log(Level.INFO, "Le client à envoyé un calcul");
+            while ((line = in.readLine()) != null) {
 
                 String[] parts = line.split(" ");
 
-                if (parts.length > 3) {
-                    LOG.log(Level.SEVERE, "");
+                if (parts.length != 3) {
+                    out.write("Wrong calculation format\r\n");
+                    out.write("Please input your calculation :\r\n");
+                    out.flush();
+                    continue;
                 }
 
                 char operation = parts[1].charAt(0);
@@ -108,12 +112,12 @@ public class Server {
                         break;
                 }
 
-                out.write(result + "\n");
+                out.write(result + "\r\n");
+                out.write("Please input your calculation :\r\n");
                 out.flush();
             }
-            out.flush();
 
-            LOG.info("Cleaning resources");
+            LOG.info("Close connection with client");
             in.close();
             out.close();
         } catch (IOException ex) {

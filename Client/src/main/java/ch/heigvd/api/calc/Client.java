@@ -44,18 +44,28 @@ public class Client {
             clientSocket = new Socket("localhost", 23000);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String line;
 
-            String calcul;
-            LOG.log(Level.INFO, "Entrez un calcul");
-            calcul = stdin.readLine();
-            out.write(calcul + "\n");
-            out.flush();
+            line = in.readLine();
+            LOG.log(Level.INFO, line);
+            line = in.readLine();
+            LOG.log(Level.INFO, line);
 
-            LOG.log(Level.INFO, "Votre calcul a été envoyé");
-            String response = in.readLine();
-            LOG.log(Level.INFO, "Réponse1 : " + response);
+            while ((line = stdin.readLine()) != null) {
+                if (line.equalsIgnoreCase("exit")) {
+                    break;
+                }
 
-            LOG.log(Level.INFO, "FIN");
+                out.write(line + "\r\n");
+                out.flush();
+
+                String response = in.readLine();
+                LOG.log(Level.INFO, "Result : " + response);
+                line = in.readLine();
+                LOG.log(Level.INFO, line);
+            }
+
+            LOG.log(Level.INFO, "Bye !");
             clientSocket.close();
 
         } catch (IOException e) {
