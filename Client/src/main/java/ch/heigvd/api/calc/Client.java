@@ -40,10 +40,11 @@ public class Client {
 
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
-        if (!connectToServer("localhost", 9999)){
-            System.out.println("Can't connect to server.\n");
-            System.out.println("Exiting...");
-            System.exit(0);
+        try {
+            connectToServer("localhost", 9999);
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Connection to server failed.");
+            System.exit(1);
         }
 
         String line;
@@ -72,83 +73,46 @@ public class Client {
                         break;
                     default:
                         System.out.println("The server responded with an error : " + parsedRes.get(1));
-
                 }
 
-            } catch (IOException ex) {
+            } catch (IOException e) {
                 running = false;
-                LOG.log(Level.SEVERE, null, ex);
+                LOG.log(Level.SEVERE, null, e);
             }
         }
 
-
-        if (closeConnection()) {
-            System.out.println("Connection properly closed.");
-            System.exit(0);
-        } else {
-            System.out.println("Error occurred while closing connection.");
-            System.exit(1);
-        }
-
-    }
-
-    private static boolean connectToServer(String host, int listenPort) {
         try {
-            clientSocket = new Socket(host, listenPort);
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "Can't open connection");
-            return false;
-        }
-        try {
-            writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
-        } catch (IOException ex) {
-            LOG.log(Level.SEVERE, "Can't open output stream.");
-            return false;
-        }
-        try {
-            reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
-            String line;
-            boolean msgEnd = false;
-            while (!msgEnd) {
-                line = reader.readLine();
-                if (line == null || line.equals(serverLastGreetingWords))
-                    msgEnd = true;
-                System.out.println(line);
-            }
+            closeConnection();
         } catch (IOException e) {
-            LOG.log(Level.SEVERE, "Can't open input stream.");
-            try {
-                writer.close();
-            } catch (IOException e2) {
-                LOG.log(Level.SEVERE, "IO streams exception.", e2);
-                System.exit(1);
-            }
+            LOG.log(Level.SEVERE, null, e);
         }
-        return true;
+
     }
 
-    private static boolean closeConnection() {
-        boolean thrown = false;
-        try {
-            if (writer != null) writer.close();
-        } catch (IOException ex) {
-            thrown = true;
-            LOG.log(Level.SEVERE, ex.toString(), ex);
+
+    private static void connectToServer(String host, int listenPort) throws IOException {
+        clientSocket = new Socket(host, listenPort);
+        writer = new BufferedWriter(new OutputStreamWriter(
+                        clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+        reader = new BufferedReader(new InputStreamReader(
+                        clientSocket.getInputStream(), StandardCharsets.UTF_8));
+        String line;
+        boolean msgEnd = false;
+        while (!msgEnd) {
+            line = reader.readLine();
+            if (line == null || line.equals(serverLastGreetingWords))
+                msgEnd = true;
+            System.out.println(line);
         }
-        try {
-            if (reader != null) reader.close();
-        } catch (IOException ex) {
-            thrown = true;
-            LOG.log(Level.SEVERE, ex.toString(), ex);
-        }
-        try {
-            if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
-        } catch (IOException ex) {
-            thrown = true;
-            LOG.log(Level.SEVERE, ex.toString(), ex);
-        }
-        return !thrown;
     }
+
+
+    private static void closeConnection() throws IOException{
+        if (writer != null) writer.close();
+        if (reader != null) reader.close();
+        if (clientSocket != null) clientSocket.close();
+    }
+
 
     /**
      * Send a message to server.
