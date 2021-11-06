@@ -12,6 +12,9 @@ import java.util.logging.Logger;
 public class ServerWorker implements Runnable {
 
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
+    Socket clientSocket;
+    BufferedReader in = null;
+    PrintWriter out = null;
 
     /**
      * Instantiation of a new worker mapped to a socket
@@ -26,7 +29,12 @@ public class ServerWorker implements Runnable {
          *   server calls the ServerWorker.run method.
          *   Don't call the ServerWorker.run method here. It has to be called from the Server.
          */
-
+        try {
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new PrintWriter(clientSocket.getOutputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -44,6 +52,74 @@ public class ServerWorker implements Runnable {
          *     - Handle the message
          *     - Send to result to the client
          */
+        try {
+            String line;
+            LOG.log(Level.INFO, "Open connection with client");
 
+            out.write("--- Welcome to the calculator ---\n" +
+                    "Please input your calculation :\r\n");
+            out.flush();
+
+            while ((line = in.readLine()) != null) {
+
+                String[] parts = line.split(" ");
+
+                if (parts.length != 3) {
+                    out.write("Wrong calculation format\r\n");
+                    out.write("Please input your calculation :\r\n");
+                    out.flush();
+                    continue;
+                }
+
+                char operation = parts[1].charAt(0);
+                double lhs = Double.parseDouble(parts[0]);
+                double rhs = Double.parseDouble(parts[2]);
+                double result = 0;
+
+                switch (operation) {
+                    case '/':
+                        result = lhs / rhs;
+                        break;
+                    case '+':
+                        result = lhs + rhs;
+                        break;
+                    case '*':
+                        result = lhs * rhs;
+                        break;
+                    case '-':
+                        result = lhs - rhs;
+                        break;
+                    default:
+                        break;
+                }
+
+                out.write(result + "\r\n");
+                out.write("Please input your calculation :\r\n");
+                out.flush();
+            }
+
+            LOG.info("Close connection with client");
+            in.close();
+            out.close();
+        } catch (IOException ex) {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            if (out != null) {
+                out.close();
+            }
+            if (clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
     }
 }
