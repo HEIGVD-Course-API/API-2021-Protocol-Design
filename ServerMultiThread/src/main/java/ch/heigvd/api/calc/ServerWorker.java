@@ -1,8 +1,12 @@
 package ch.heigvd.api.calc;
 
 import java.io.*;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +16,12 @@ import java.util.logging.Logger;
 public class ServerWorker implements Runnable {
 
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
+    private static final String CRLF = "\r\n";
+
+
+    Socket clientSocket;
+    BufferedReader in = null;
+    PrintWriter out = null;
 
     /**
      * Instantiation of a new worker mapped to a socket
@@ -26,6 +36,13 @@ public class ServerWorker implements Runnable {
          *   server calls the ServerWorker.run method.
          *   Don't call the ServerWorker.run method here. It has to be called from the Server.
          */
+        try {
+            this.clientSocket = clientSocket;
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new PrintWriter(clientSocket.getOutputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
@@ -44,6 +61,96 @@ public class ServerWorker implements Runnable {
          *     - Handle the message
          *     - Send to result to the client
          */
+
+
+        String line;
+        boolean shouldRun = true;
+        LOG.info("Welcome to the Multi-Threaded Server.\nSend me your operation and conclude with the Bye command.");
+
+        BufferedReader in = null;
+        BufferedWriter out = null;
+
+        try {
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+
+            LOG.info("Reading until client sends BYE or closes the connection...");
+            while ((shouldRun) && (line = in.readLine()) != null) {
+                LOG.log(Level.INFO, "Client sent : " + line);
+
+                if (line.equalsIgnoreCase("Bye")) {
+                    shouldRun = false;
+                }
+
+                if (line.equals("Hello")) {
+                    out.write("Hello\n");
+                    out.flush();
+                    continue;
+                }
+
+                ArrayList<String> list = new ArrayList<>(List.of(line.split(" ")));
+
+                int OPERATION_SIZE = 3;
+                if (list.size() != OPERATION_SIZE) {
+                    out.write("Bad syntax\n");
+                    out.flush();
+                } else {
+
+                    String op = list.get(0);
+
+                    if (!Objects.equals(op, "+") && !Objects.equals(op, "*")) {
+                        out.write("Bad syntax\n");
+                        out.flush();
+                    }
+
+                    int nb1;
+                    int nb2;
+
+                    try {
+                        nb1 = Integer.parseInt(list.get(1));
+                        nb2 = Integer.parseInt(list.get(2));
+                    } catch (NumberFormatException ex) {
+                        out.write("Bad syntax\n");
+                        out.flush();
+                        continue;
+                    }
+
+                    int result = 0;
+
+                    if (Objects.equals(op, "+")) {
+                        result = nb1 + nb2;
+                    } else if (Objects.equals(op, "*")) {
+                        result = nb1 * nb2;
+                    }
+
+                    out.write(result + CRLF);
+                    out.flush();
+                }
+            }
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            try {
+                clientSocket.close();
+            } catch (IOException ex1) {
+                LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+            }
+        }
+
 
     }
 }

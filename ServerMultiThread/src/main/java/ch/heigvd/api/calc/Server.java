@@ -34,5 +34,24 @@ public class Server {
          *  by a new ServerWorker.
          */
 
+        ServerSocket serverSocket;
+
+        try {
+            serverSocket = new ServerSocket(2021);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return;
+        }
+
+        while (true) {
+            LOG.log(Level.INFO, "Multi-threaded: Waiting for a new client on port {0}", 2021);
+            try {
+                Socket clientSocket = serverSocket.accept();
+                LOG.info("A new client has arrived. Starting a new thread and delegating work to a new servant...");
+                new Thread(new ServerWorker(clientSocket)).start();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }

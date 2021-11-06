@@ -17,6 +17,7 @@ public class Client {
     private static final int PORT = 2021;
     private static final String[] REQUESTS = {"Hello", "Bye"};
     private static final String CRLF = "\r\n";
+
     private enum Request {START, END}
 
     private static BufferedWriter stdout = null;
@@ -48,13 +49,13 @@ public class Client {
         stdout = new BufferedWriter(new OutputStreamWriter(System.out));
         stdin = new BufferedReader(new InputStreamReader(System.in));
 
-        try{
+        try {
             // Creates a stream socket and connects it to the specified port number at the specified IP address
             clientSocket = new Socket(InetAddress.getLocalHost(), PORT);
-            os = new BufferedWriter( new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+            os = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
             is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
 
-            LOG.log(Level.INFO,"Server exist");
+            LOG.log(Level.INFO, "Server exist");
 
             // Start connection
             // DO NOT FORGET TO WRITE AN CRLF
@@ -66,13 +67,13 @@ public class Client {
             String serverResponse = showServerResponse();
 
             // Checks if the server responded correctly to the request and
-            if(Objects.equals(serverResponse, REQUESTS[Request.START.ordinal()])){
+            if (Objects.equals(serverResponse, REQUESTS[Request.START.ordinal()])) {
                 stdout.write("Operation syntax : operator number1 number2\n");
                 stdout.write("operator : \"+\", \"*\"\n");
                 stdout.write("To quit write : \"Bye\"\n\n");
                 stdout.flush();
 
-                while (true){
+                while (true) {
                     // Reads the user request and send it to the server
                     String userRequest = getUserRequest();
 
@@ -81,7 +82,7 @@ public class Client {
                     os.flush();
 
                     // Ends the connection if the client wants to
-                    if(userRequest.equals(REQUESTS[Request.END.ordinal()]))
+                    if (userRequest.equals(REQUESTS[Request.END.ordinal()]))
                         break;
 
                     // Reads the server response
@@ -89,7 +90,7 @@ public class Client {
                 }
             }
 
-        } catch (IOException ex){
+        } catch (IOException ex) {
             LOG.log(Level.SEVERE, null, ex);
         } finally {
             if (is != null) {
@@ -106,10 +107,12 @@ public class Client {
                     LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
                 }
             }
-            try {
-                clientSocket.close();
-            } catch (IOException ex1) {
-                LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+            if (clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
             }
             if (stdin != null) {
                 try {
@@ -130,6 +133,7 @@ public class Client {
 
     /**
      * Gets the request without checking if he correctly responded
+     *
      * @return User request
      * @throws IOException throws an error if there's any problem with the system in/output
      */
@@ -137,12 +141,13 @@ public class Client {
         stdout.write("Submit your request : ");
         stdout.flush();
         // Waits the stream
-        while(!stdin.ready());
+        while (!stdin.ready()) ;
         return stdin.readLine();
     }
 
     /**
      * Reads the server response and logs it
+     *
      * @return Server response
      * @throws IOException throws an error if there's any problem with input from the client socket
      */
