@@ -64,7 +64,6 @@ public class Client {
                 line = in.readLine();
                 LOG.log(Level.INFO, line);
             }
-
             LOG.log(Level.INFO, "Bye !");
             clientSocket.close();
 

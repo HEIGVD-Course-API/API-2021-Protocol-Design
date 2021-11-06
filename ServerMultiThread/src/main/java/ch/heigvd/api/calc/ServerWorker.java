@@ -2,7 +2,6 @@ package ch.heigvd.api.calc;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,9 +11,8 @@ import java.util.logging.Logger;
 public class ServerWorker implements Runnable {
 
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
-    Socket clientSocket;
-    BufferedReader in = null;
-    PrintWriter out = null;
+    private BufferedReader in = null;
+    private PrintWriter out = null;
 
     /**
      * Instantiation of a new worker mapped to a socket
@@ -111,13 +109,6 @@ public class ServerWorker implements Runnable {
             }
             if (out != null) {
                 out.close();
-            }
-            if (clientSocket != null) {
-                try {
-                    clientSocket.close();
-                } catch (IOException ex1) {
-                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
-                }
             }
             LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
