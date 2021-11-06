@@ -3,7 +3,8 @@ package ch.heigvd.api.calc;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 public class Server {
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
+    private static final String CRLF = "\r\n";
 
     /**
      * Main function to start the server
@@ -75,20 +77,26 @@ public class Server {
         BufferedWriter out = null;
 
         try {
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
             String line;
 
             LOG.info("Reading until client sends BYE or closes the connection...");
             while ((line = in.readLine()) != null) {
+                LOG.log(Level.INFO, "Client sent : " + line);
+
                 if (line.equalsIgnoreCase("Bye")) {
                     break;
                 }
+
                 if (line.equals("Hello")) {
                     out.write("Hello\n");
                     out.flush();
+                    continue;
                 }
-                ArrayList<String> list = new ArrayList<>(Arrays.asList(line.split(" ")));
+
+                ArrayList<String> list = new ArrayList<>(List.of(line.split(" ")));
+
                 int OPERATION_SIZE = 3;
                 if (list.size() != OPERATION_SIZE) {
                     out.write("Bad syntax\n");
@@ -102,24 +110,33 @@ public class Server {
                         out.flush();
                     }
 
-                    int nb1 = Integer.getInteger(list.get(1));
-                    int nb2 = Integer.getInteger(list.get(2));
+                    int nb1;
+                    int nb2;
+
+                    try{
+                        nb1 = Integer.parseInt(list.get(1));
+                        nb2 = Integer.parseInt(list.get(2));
+                    } catch (NumberFormatException ex){
+                        out.write("Bad syntax\n");
+                        out.flush();
+                        continue;
+                    }
 
                     int result = 0;
 
                     if (Objects.equals(op, "+")) {
                         result = nb1 + nb2;
-                    } else if (Objects.equals(op, "×")) {
+                    } else if (Objects.equals(op, "*")) {
                         result = nb1 * nb2;
                     }
 
-                    out.write(result);
+                    out.write(result + CRLF);
                     out.flush();
                 }
-                // TODO: 06.11.21 verifier que ce sont bien des chiffres.
-
             }
         } catch (IOException ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        } finally {
             if (in != null) {
                 try {
                     in.close();
@@ -139,9 +156,6 @@ public class Server {
             } catch (IOException ex1) {
                 LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
             }
-            LOG.log(Level.SEVERE, ex.getMessage(), ex);
-
-
         }
 
     }

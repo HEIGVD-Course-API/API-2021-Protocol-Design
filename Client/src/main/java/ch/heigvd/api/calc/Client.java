@@ -17,23 +17,21 @@ public class Client {
     private static final int PORT = 2021;
     private static final String[] REQUESTS = {"Hello", "Bye"};
     private static final String CRLF = "\r\n";
-    private enum Request {START, END};
-    private static final int BUFFER_SIZE = 32;
-
+    private enum Request {START, END}
 
     private static BufferedWriter stdout = null;
     private static BufferedReader stdin = null;
 
     private static Socket clientSocket = null;
-    private static OutputStream os = null;
-    private static InputStream is = null;
+    private static BufferedWriter os = null;
+    private static BufferedReader is = null;
 
     /**
      * Main function to run client
      *
      * @param args no args required
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
@@ -51,32 +49,39 @@ public class Client {
         stdin = new BufferedReader(new InputStreamReader(System.in));
 
         try{
-            // Establish connection with server and set streams to send/receive bytes
+            // Creates a stream socket and connects it to the specified port number at the specified IP address
             clientSocket = new Socket(InetAddress.getLocalHost(), PORT);
-            os = clientSocket.getOutputStream();
-            is = clientSocket.getInputStream();
+            os = new BufferedWriter( new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+            is = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+
+            LOG.log(Level.INFO,"Server exist");
 
             // Start connection
+            // DO NOT FORGET TO WRITE AN CRLF
             String connection = REQUESTS[Request.START.ordinal()] + CRLF;
-            os.write(connection.getBytes(StandardCharsets.UTF_8));
+            os.write(connection);
+            os.flush();
 
-            ByteArrayOutputStream responseBuffer = showServerResponse();
+            LOG.log(Level.INFO, "Waiting for an answer");
+            String serverResponse = showServerResponse();
 
             // Checks if the server responded correctly to the request and
-            if(Objects.equals(responseBuffer.toString(), REQUESTS[Request.START.ordinal()])){
+            if(Objects.equals(serverResponse, REQUESTS[Request.START.ordinal()])){
                 stdout.write("Operation syntax : operator number1 number2\n");
                 stdout.write("operator : \"+\", \"*\"\n");
                 stdout.write("To quit write : \"Bye\"\n\n");
+                stdout.flush();
 
                 while (true){
                     // Reads the user request and send it to the server
                     String userRequest = getUserRequest();
 
                     // Sends the user request
-                    os.write(userRequest.getBytes(StandardCharsets.UTF_8));
+                    os.write(userRequest + CRLF);
+                    os.flush();
 
                     // Ends the connection if the client wants to
-                    if(userRequest.equals(REQUESTS[Request.END.ordinal()] + CRLF))
+                    if(userRequest.equals(REQUESTS[Request.END.ordinal()]))
                         break;
 
                     // Reads the server response
@@ -87,11 +92,39 @@ public class Client {
         } catch (IOException ex){
             LOG.log(Level.SEVERE, null, ex);
         } finally {
-            is.close();
-            os.close();
-            clientSocket.close();
-            stdin.close();
-            stdout.close();
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            try {
+                clientSocket.close();
+            } catch (IOException ex1) {
+                LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+            }
+            if (stdin != null) {
+                try {
+                    stdin.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            if (stdout != null) {
+                try {
+                    stdout.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
         }
     }
 
@@ -101,7 +134,10 @@ public class Client {
      * @throws IOException throws an error if there's any problem with the system in/output
      */
     private static String getUserRequest() throws IOException {
-        stdout.write("Send the wanted operation : ");
+        stdout.write("Submit your request : ");
+        stdout.flush();
+        // Waits the stream
+        while(!stdin.ready());
         return stdin.readLine();
     }
 
@@ -110,18 +146,12 @@ public class Client {
      * @return Server response
      * @throws IOException throws an error if there's any problem with input from the client socket
      */
-    private static ByteArrayOutputStream showServerResponse() throws IOException {
-        ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
-        byte[] buffer = new byte[BUFFER_SIZE];
-        int newBytes;
+    private static String showServerResponse() throws IOException {
+        String serverResponse = is.readLine();
 
-        while ((newBytes = is.read(buffer)) != -1){
-            responseBuffer.write(buffer, 0, newBytes);
-        }
-
-        LOG.log(Level.INFO, "Response sent by the server: ");
-        LOG.log(Level.INFO, responseBuffer.toString());
-
-        return responseBuffer;
+        stdout.write("Server result : " + serverResponse);
+        stdout.newLine();
+        stdout.flush();
+        return serverResponse;
     }
 }
