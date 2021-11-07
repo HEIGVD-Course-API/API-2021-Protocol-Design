@@ -3,6 +3,7 @@ package ch.heigvd.api.calc;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,7 +41,7 @@ public class Server {
             clientSocket = serverSocket.accept();
             handleClient(clientSocket);
 
-        }catch (IOException ex) {
+        }catch (IOException | InterruptedException ex) {
             LOG.log(Level.SEVERE, ex.getMessage());
         } finally {
             clientSocket.close();
@@ -54,7 +55,7 @@ public class Server {
      *
      * @param clientSocket with the connection with the individual client.
      */
-    private void handleClient(Socket clientSocket) throws IOException {
+    private void handleClient(Socket clientSocket) throws IOException, InterruptedException {
 
         /* TODO: implement the handling of a client connection according to the specification.
          *   The server has to do the following:
@@ -65,23 +66,30 @@ public class Server {
          *     - Handle the message
          *     - Send to result to the client
          */
-        String EOL = "CRLF",
-               END_OPE = " - END OPERATIONS",
-               BEGIN_OPE = "AVALABLE OPERATOINS",
+        String EOL = "CRLF \n",
+               END_OPE = " - END OPERATIONS ",
+               BEGIN_OPE = "AVALABLE OPERATOINS ",
                QUIT = "QUIT";
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
 
-        writer.write(BEGIN_OPE);
-        writer.flush();
+
+        out.write(BEGIN_OPE + EOL);
+        out.flush();
+        out.write(END_OPE + EOL);
+        out.flush();
+
         String line;
         LOG.log(Level.INFO, "Connected with client and sent 1st message");
-        while ((line = reader.readLine()).contains(QUIT)) {
-            if (line.contains("CRLF")) {
-
+//
+        while ((line = in.readLine()) != null ) {
+            LOG.log(Level.INFO, line);
+            out.write("received : " + line + "\n");
+            out.flush();
+            if (line.contains(QUIT)) {
+                break;
             }
         }
-
     }
 }

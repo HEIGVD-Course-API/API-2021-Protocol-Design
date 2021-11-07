@@ -20,9 +20,9 @@ public class Client {
      */
     public static void main(String[] args) {
 
-        String EOL = "CRLF",
-               END_OPE = " - END OPERATIONS",
-               BEGIN_OPE = "AVALABLE OPERATOINS";
+        String EOL = "CRLF \n",
+                END_OPE = " - END OPERATIONS",
+                BEGIN_OPE = "AVALABLE OPERATOINS";
         Vector<String> ope_list = new Vector<String>();
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
@@ -45,32 +45,32 @@ public class Client {
             boolean waitingOperations = false;
             LOG.log(Level.INFO, "*** Response sent by the server: ***");
             String line;
+
             while ((line = in.readLine()) != null) {
                 LOG.log(Level.INFO, line);
 
                 // Line complete
-                if (line.contains(EOL)) {
 
-                    if (line.contains(EOL)) {
 
-                        // enlever crtr
-                        // List of operatoins
-                        if (line.contains(BEGIN_OPE))
-                            waitingOperations = true;
+                if (line.contains("CRLF")) {
 
-                        if (line.contains(END_OPE))
-                            waitingOperations = false;
+                    // enlever crtr
+                    // List of operatoins
+                    if (line.contains(BEGIN_OPE))
+                        waitingOperations = true;
+                    else if (line.contains(END_OPE))
+                        waitingOperations = false;
 
-                        if (waitingOperations)
-                            ope_list.add(line);
-                        else {
-                            stdin = new BufferedReader(new InputStreamReader(System.in));
-                            out.write(stdin.readLine());
-                        }
+                    if (waitingOperations)
+                        ope_list.add(line);
+                    else {
+                        System.out.print("client input : ");
+                        stdin = new BufferedReader(new InputStreamReader(System.in));
+                        out.write(stdin.readLine() + EOL);
+                        out.flush();
                     }
                 }
             }
-
 
 
         } catch (IOException ex) {
@@ -87,7 +87,7 @@ public class Client {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
             try {
-                if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
+                if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
