@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 public class Server {
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
+    private final static int PORT = 6996;
+
 
     /**
      * Main function to start the server
@@ -27,12 +29,18 @@ public class Server {
      * Start the server on a listening socket.
      */
     private void start() {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 
-        /* TODO: implement the receptionist server here.
-         *  The receptionist just creates a server socket and accepts new client connections.
-         *  For a new client connection, the actual work is done in a new thread
-         *  by a new ServerWorker.
-         */
+            while (!serverSocket.isClosed()) {
+                Socket clientSocket = serverSocket.accept();
 
+                ServerWorker worker = new ServerWorker(clientSocket);
+                Thread thread = new Thread(worker);
+                thread.start();
+
+            }
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Error while creating server socket or accepting socket.", e);
+        }
     }
 }
