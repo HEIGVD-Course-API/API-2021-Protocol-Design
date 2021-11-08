@@ -48,6 +48,7 @@ public class ServerWorker implements Runnable {
             while (!clientSocket.isClosed()) {
                 while (in.ready()) {
                     String line = in.readLine();
+                    LOG.log(Level.INFO, "Received: " + line);
                     String[] operations = line.split("\\s+");
 
                     if (operations.length < 1) {
@@ -89,19 +90,21 @@ public class ServerWorker implements Runnable {
     }
 
     private void sendReady() throws IOException {
-        out.write("READY\n");
-        out.write("Operations:\n");
+        StringBuilder response = new StringBuilder("READY\nOperations:\n");
         for (String op : SUPPORTED_OPERATIONS) {
-            out.write("- " + op + "\n");
+            response.append("- ").append(op).append("\n");
         }
-        out.write("\n");
+        response.append("\n");
+        out.write(response.toString());
         out.flush();
+        LOG.log(Level.INFO, "Sent: " + response);
     }
 
     private void sendError(String message) throws IOException {
-        out.write("ERROR\n");
-        out.write(message + "\n\n");
+        String response = "ERROR\n" + message + "\n\n";
+        out.write(response);
         out.flush();
+        LOG.log(Level.INFO, "Sent: " + response);
     }
 
     private void processDo(String[] tokens) throws IOException {
@@ -144,7 +147,9 @@ public class ServerWorker implements Runnable {
     }
 
     private void sendResult(int result) throws IOException {
-        out.write("RESULT " + result + "\n");
+        String response = "RESULT " + result + "\n";
+        out.write(response);
         out.flush();
+        LOG.log(Level.INFO, response);
     }
 }
