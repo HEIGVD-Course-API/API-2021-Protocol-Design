@@ -1,13 +1,10 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Calculator client implementation
@@ -15,6 +12,8 @@ import java.net.Socket;
 public class Client {
 
     private static final Logger LOG = Logger.getLogger(Client.class.getName());
+    private static final int PORT = 6996;
+    private static final String HOST = "127.0.0.1";
 
     /**
      * Main function to run client
@@ -25,55 +24,41 @@ public class Client {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
-        /* TODO: Implement the client here, according to your specification
-         *   The client has to do the following:
-         *   - connect to the server
-         *   - initialize the dialog with the server according to your specification
-         *   - In a loop:
-         *     - read the command from the user on stdin (already created)
-         *     - send the command to the server
-         *     - read the response line from the server (using BufferedReader.readLine)
-         */
-
         Socket clientSocket = null;
         BufferedWriter out = null;
         BufferedReader in = null;
         BufferedReader stdin;
 
-        boolean exit = false;
-
         try {
             // Connect to the server
-            clientSocket = new Socket( "127.0.0.1" /*"192.168.17.1"*/, 6996);
+            clientSocket = new Socket(HOST, PORT);
 
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
+            stdin = new BufferedReader(new InputStreamReader(System.in));
 
             // Initialize the dialog with the server
-            String line = "";
-            while (!line.startsWith("READY")) {
-                while ((line = in.readLine()) != null)
-                    LOG.log(Level.INFO, line);
-            }
-            System.out.println(line);
+            while (!clientSocket.isClosed()) {
+                String line;
 
-            while (!exit) {
-                // Read the command from the user on stdin
-                stdin = new BufferedReader(new InputStreamReader(System.in));
-                String input = "";
-                while (input.length() < 1)
-                    input = stdin.readLine();
+                while ((line = in.readLine()) != null) {
+                    System.out.println(line);
 
-                if (line.startsWith("EXIT"))
-                    exit = true;
+                    if (line.startsWith("RESULT") || line.isEmpty()) {
+                        break;
+                    }
+                }
+
+                String input = stdin.readLine();
 
                 // Send the command to the server
-                out.write(input);
+                out.write(input + "\n");
                 out.flush();
+                LOG.log(Level.INFO, "Sent: " + input);
 
-                // Read the response line from the server
-                while ((line = in.readLine()) != null)
-                    LOG.log(Level.INFO, line);
+                if (input.equals("EXIT")) {
+                    return;
+                }
             }
 
         } catch (IOException ex) {
@@ -90,7 +75,7 @@ public class Client {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
             try {
-                if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
+                if (clientSocket != null) clientSocket.close();
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
