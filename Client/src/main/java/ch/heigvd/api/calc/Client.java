@@ -40,7 +40,7 @@ public class Client {
         BufferedReader in = null;
 
         try {
-            clientSocket = new Socket("10.192.93.150", 8069);
+            clientSocket = new Socket("10.192.93.80", 8069);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
@@ -51,18 +51,24 @@ public class Client {
 
             LOG.log(Level.INFO, "*** Response sent by the server: ***");
             String line;
-            while (!(line = in.readLine()).equals("Send me text lines and conclude with the BYE command.")) {
+            while (!(line = in.readLine()).equals("Type HELP to see example of commands.")) {
                 LOG.log(Level.INFO, line);
             }
-
-            out.write(stdin.readLine() + "\r\n");
-            out.flush();
-
-            while ((line = in.readLine()) != null) {
-                LOG.log(Level.INFO, line);
-                out.write(stdin.readLine()+ "\r\n");
+            boolean quit = false;
+            while(!quit){
+                out.write(stdin.readLine() + "\r\n");
                 out.flush();
+                while ((line = in.readLine()) != null) {
+                    if(line.equals("> END TRANSMISSION")){
+                        break;
+                    }
+                    if(line.equals("> Good bye!")){
+                        quit = true;
+                    }
+                    System.out.println(line);
+                }
             }
+
 
 
 
