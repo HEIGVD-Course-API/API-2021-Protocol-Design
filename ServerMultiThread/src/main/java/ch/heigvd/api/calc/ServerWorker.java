@@ -18,7 +18,7 @@ public class ServerWorker implements Runnable {
     
     private final static String[] OPERATIONS = {"ADD", "SUB", "MULT", "DIV"};
     private final static String ERROR_MSG = "ERROR: Calculation impossible";
-    private final static String END_WELCOME_MSG = "ERROR: Calculation impossible";
+    private final static String END_WELCOME_MSG = "END_OF_OPERATIONS";
     private final static String EXIT_CMD = "QUIT";
     
     /**

@@ -34,8 +34,9 @@ public class Client {
         boolean shouldQuit = false;
         String serverInput = "";
         String userInput = "";
-        final int port = 4269;
+        
         final String headerEnd = "END_OF_OPERATIONS";
+        final int port = 4269;
         final String host = "10.192.94.57";
 
         try {
