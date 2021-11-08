@@ -1,7 +1,6 @@
 package ch.heigvd.api.calc;
 
 import java.io.*;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +14,8 @@ public class Client {
     public static  final int PORT = 1339;
     public static  final String SERVER = "localhost";
 
+
+
     /**
      *
      */
@@ -22,9 +23,8 @@ public class Client {
 
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
-        BufferedReader stdin = null;
 
-        stdin = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
         Socket clientSocket = null;
         BufferedWriter out = null;
@@ -35,23 +35,31 @@ public class Client {
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in  = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            String line = "";
-            line = in.readLine();
-            LOG.log(Level.INFO, line);
+            //display Welcome MSG
+            String msgFromServ;
+            while(!(msgFromServ = in.readLine()).equals("")){
+                System.out.println(msgFromServ);
+            }
 
-            while((line = stdin.readLine()) != null){
-                if(line.equalsIgnoreCase("quit"))
+            String userRequest;
+
+
+            do{
+                //get userInput
+                userRequest = stdin.readLine();
+                System.out.println(userRequest);
+                if(userRequest.equalsIgnoreCase("quit"))
                     break;
 
-                out.write(line+"\r\n");
-               // out.flush();
+                //send request
+                out.write(userRequest+"\r\n");
+                out.flush();
 
-                String answer = in.readLine();
-                LOG.log(Level.INFO, "Result: " + answer);
-                line = in.readLine();
-                LOG.log(Level.INFO, line);
-            }
-            LOG.log(Level.INFO, "See you!");
+                while((msgFromServ = in.readLine()) != null ){
+                    System.out.println(msgFromServ);
+                }
+
+            }while(!userRequest.equalsIgnoreCase("quit"));
             clientSocket.close();
         }
         catch (IOException ex) {

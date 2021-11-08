@@ -15,20 +15,21 @@ import java.util.stream.Collectors;
  * Calculator server implementation - single threaded
  */
 public class Server {
-    private final String WELCOME_MSG= "Welcome \n  FOLLOWING OPERATIONS ARE AVAILABLE\n" +
-                                      "            ADD\n" +
-                   "            SUB\n" +
+    private final String WELCOME_MSG = "Welcome \n  FOLLOWING OPERATIONS ARE AVAILABLE\n" +
+            "            ADD\n" +
+            "            SUB\n" +
             "            MULT\n" +
-            "            DIV";
+            "            DIV\n" +
+            "\n";
 
     //No enum class sadly....
-    public static final int ADD =  1;
-    public static final int SUB =  2;
+    public static final int ADD = 1;
+    public static final int SUB = 2;
     public static final int MULT = 3;
-    public static final int DIV =  4;
-    public static final int UNKNOWN= -1;
+    public static final int DIV = 4;
+    public static final int UNKNOWN = -1;
     public static final String UNKNOWN_MSG = "Unknown Operation \n";
-    public static final int WRONG_ARGUMENTS= -2;
+    public static final int WRONG_ARGUMENTS = -2;
     public static final String WRONG_ARG_MSG = "Two numbers are required to process your calculus !\n";
 
 
@@ -59,8 +60,8 @@ public class Server {
 
         try {
             serverSocket = new ServerSocket(1339);
-            while(true){
-                System.out.println("SingleThreaded: Waiting for client to connect");
+            while (true) {
+                System.out.println("SingleThreaded: Waiting for client to connect\n");
                 clientSocket = serverSocket.accept();
                 handleClient(clientSocket);
             }
@@ -77,6 +78,7 @@ public class Server {
         out.flush();
 
     }
+
     private Calculus parseClientMessage(BufferedReader in) throws IOException {
 
         ArrayList<Integer> numbers = new ArrayList<>();
@@ -108,14 +110,15 @@ public class Server {
                     calculus.operation = UNKNOWN;
             }
 
-        }else{
+        } else {
             calculus.operation = WRONG_ARGUMENTS;
         }
-    return calculus;
+        return calculus;
     }
-    private int processCalculus(Calculus calculus){
 
-        switch(calculus.operation){
+    private int processCalculus(Calculus calculus) {
+
+        switch (calculus.operation) {
             case ADD:
                 return calculus.numbers.get(0) + calculus.numbers.get(1);
             case SUB:
@@ -130,9 +133,10 @@ public class Server {
         }
 
     }
-    private void handleError(int returnCode,BufferedWriter out) throws IOException {
 
-        switch(returnCode){
+    private void handleError(int returnCode, BufferedWriter out) throws IOException {
+
+        switch (returnCode) {
             case UNKNOWN:
                 out.write(UNKNOWN_MSG);
                 break;
@@ -155,9 +159,12 @@ public class Server {
      */
     private void handleClient(Socket clientSocket) throws IOException {
 
+        System.out.println("SingleThreaded: Handling a client\n");
+
         BufferedReader in = null;
         BufferedWriter out = null;
         Calculus currentCalculus;
+
 
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
         out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
@@ -165,11 +172,11 @@ public class Server {
         currentCalculus = parseClientMessage(in);
 
         //If something went wrong during parsing
-        if(currentCalculus.operation < 0){
+        if (currentCalculus.operation < 0) {
             handleError(currentCalculus.operation, out);
         }
 
-        out.write("Answer : " + processCalculus(currentCalculus) + "\n" );
+        out.write("Answer : " + processCalculus(currentCalculus) + "\n");
         out.flush();
 
         out.write("Thank u brother ! \n");
