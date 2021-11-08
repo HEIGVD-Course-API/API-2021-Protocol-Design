@@ -1,7 +1,7 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,6 +34,58 @@ public class Client {
          */
 
         stdin = new BufferedReader(new InputStreamReader(System.in));
+
+        Socket clientSocket = null;
+        BufferedWriter out = null;
+        BufferedReader in = null;
+
+        try {
+            clientSocket = new Socket("10.192.93.150", 8069);
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            /*String malformedHttpRequest = "Hello, sorry, but I don't speak HTTP...\r\n\r\n";
+            out.write(malformedHttpRequest);
+            out.flush();*/
+            int letter;
+
+            LOG.log(Level.INFO, "*** Response sent by the server: ***");
+            String line;
+            while (!(line = in.readLine()).equals("Send me text lines and conclude with the BYE command.")) {
+                LOG.log(Level.INFO, line);
+            }
+
+            out.write(stdin.readLine() + "\r\n");
+            out.flush();
+
+            while ((line = in.readLine()) != null) {
+                LOG.log(Level.INFO, line);
+                out.write(stdin.readLine()+ "\r\n");
+                out.flush();
+            }
+
+
+
+            //LOG.log(Level.INFO, "*** Response 2 sent by the server: ***");
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, ex.toString(), ex);
+        } finally {
+            try {
+                if (out != null) out.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+            try {
+                if (in != null) in.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+            try {
+                if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.toString(), ex);
+            }
+        }
 
     }
 }
