@@ -50,13 +50,11 @@ public class Client {
             do
             {
                 LOG.log(Level.INFO, serverOutput);
-                //System.out.println(serverOutput);
             }
             while(serverOutput.equals("AVAILABLE OPERATION (+) (-) (*) (/)\r\n"));
 
 
             do{
-                //LOG.log(Level.INFO, serverOutput);
                 serverOutput = in.readLine();
                 System.out.println(serverOutput);
                 userInput = stdin.readLine();
