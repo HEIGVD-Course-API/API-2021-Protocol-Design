@@ -50,16 +50,21 @@ public class Client {
 
         //Compute
         Scanner sc = new Scanner(System.in);
-        String command = sc.nextLine();
 
-        while(!command.contains("bye")) {
+        while(true) {
+            // Nouvelle commande de l'utilisateur
+            command = sc.nextLine().trim();
+
+            if (command.equalsIgnoreCase("bye")) {
+                writer.println("bye");
+                break;
+            }
             // Utilsateur écrit sa commande
             String[] tokens = command.split(" ");
 
             // Une commande a une longueur minimal de 2 (factorial 1)
             if (tokens.length < 2){
                 System.out.println("Error: Use format <operator> op1 [op2]");
-                command = sc.nextLine();
                 continue;
             }
 
@@ -72,7 +77,6 @@ public class Client {
             }
             catch (NumberFormatException e){
                 System.out.println("Error: Please use number in numerical format.");
-                command = sc.nextLine();
                 continue;
             }
 
@@ -92,8 +96,6 @@ public class Client {
             }
             System.out.println(msg);
 
-            // Nouvelle commande de l'utilisateur
-            command = sc.nextLine();
 
         }
 
