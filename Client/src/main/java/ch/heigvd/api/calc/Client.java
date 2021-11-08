@@ -46,14 +46,19 @@ public class Client {
             stdin = new BufferedReader(new InputStreamReader(System.in));
 
             serverOutput = in.readLine();
-            if(serverOutput.equals("AVAILABLE OPERATION (+) (-) (*) (/)\r\n")){
-                while(!serverOutput.equals("BYE")){
-                    serverOutput = in.readLine();
+
+            do
+            {
+                System.out.println(serverOutput);
+            }
+            while(serverOutput.equals("AVAILABLE OPERATION (+) (-) (*) (/)\r\n"));
+
+            while(!userInput.equals("BYE")){
                     LOG.log(Level.INFO, serverOutput);
+                    serverOutput = in.readLine();
                     userInput = stdin.readLine();
                     out.write(userInput);
                     out.flush();
-                }
             }
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.toString(), ex);
