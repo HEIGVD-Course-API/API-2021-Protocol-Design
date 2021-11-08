@@ -53,7 +53,7 @@ public class Client {
 
         while(true) {
             // Nouvelle commande de l'utilisateur
-            command = sc.nextLine().trim();
+            String command = sc.nextLine().trim();
 
             if (command.equalsIgnoreCase("bye")) {
                 writer.println("bye");
