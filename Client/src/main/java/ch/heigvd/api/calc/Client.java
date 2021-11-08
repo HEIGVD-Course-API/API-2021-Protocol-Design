@@ -101,7 +101,7 @@ public class Client {
          *     - send the command to the server
          *     - read the response line from the server (using BufferedReader.readLine)
          */
-        
+
         ACI_Client clt = new ACI_Client();
         if(clt.connect("localhost", 7548)){
             System.out.println(clt.operation(ACI_Client.operation.ADD, 1, 1, 3));
