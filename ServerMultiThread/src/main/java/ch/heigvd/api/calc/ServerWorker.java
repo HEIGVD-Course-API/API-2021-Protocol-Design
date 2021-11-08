@@ -38,10 +38,9 @@ public class ServerWorker implements Runnable {
         try {
             Double.parseDouble(string);
             return true;
-        } catch (NumberFormatException e) {
-            System.out.println("Input String cannot be parsed to Integer.");
+        } catch (NumberFormatException ignored) {
+            return false;
         }
-        return false;
     }
 
     private String showOperation(String line) {
@@ -87,7 +86,6 @@ public class ServerWorker implements Runnable {
     @Override
     public void run() {
         String line;
-
         out.println("> Welcome, you are now connected with our calculation server.\nType HELP to see example of commands.");
         out.flush();
         try {
@@ -101,11 +99,10 @@ public class ServerWorker implements Runnable {
                     out.flush();
                     break;
                 } else {
-                    System.out.println("From client: " + line);
                     out.println(showOperation(line));
                     out.flush();
                 }
-
+                LOG.info("From client: " + line);
                 out.println("> END TRANSMISSION");
                 out.flush();
             }
