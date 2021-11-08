@@ -23,13 +23,8 @@ public class ServerWorker implements Runnable {
      * @param clientSocket connected to worker
      */
     public ServerWorker(Socket clientSocket) {
-        // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
-        /* TODO: prepare everything for the ServerWorker to run when the
-         *   server calls the ServerWorker.run method.
-         *   Don't call the ServerWorker.run method here. It has to be called from the Server.
-         */
         try {
             this.clientSocket = clientSocket;
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
@@ -40,14 +35,8 @@ public class ServerWorker implements Runnable {
     }
 
     private static boolean isNumeric(String string) {
-        int intValue;
-
-        if(string == null || string.equals("")) {
-            return false;
-        }
-
         try {
-            intValue = Integer.parseInt(string);
+            Double.parseDouble(string);
             return true;
         } catch (NumberFormatException e) {
             System.out.println("Input String cannot be parsed to Integer.");
@@ -97,17 +86,6 @@ public class ServerWorker implements Runnable {
      */
     @Override
     public void run() {
-
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
-
         String line;
 
         out.println("> Welcome, you are now connected with our calculation server.\nType HELP to see example of commands.");

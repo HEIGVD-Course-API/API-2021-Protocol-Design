@@ -21,19 +21,7 @@ public class Client {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
-        BufferedReader stdin = null;
-
-        /* TODO: Implement the client here, according to your specification
-         *   The client has to do the following:
-         *   - connect to the server
-         *   - initialize the dialog with the server according to your specification
-         *   - In a loop:
-         *     - read the command from the user on stdin (already created)
-         *     - send the command to the server
-         *     - read the response line from the server (using BufferedReader.readLine)
-         */
-
-        stdin = new BufferedReader(new InputStreamReader(System.in));
+        BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
 
         Socket clientSocket = null;
         BufferedWriter out = null;
@@ -44,12 +32,6 @@ public class Client {
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
-            /*String malformedHttpRequest = "Hello, sorry, but I don't speak HTTP...\r\n\r\n";
-            out.write(malformedHttpRequest);
-            out.flush();*/
-            int letter;
-
-            LOG.log(Level.INFO, "*** Response sent by the server: ***");
             String line;
             while ((line = in.readLine()) != null) {
                 System.out.println(line);
@@ -71,11 +53,6 @@ public class Client {
                     System.out.println(line);
                 }
             }
-
-
-
-
-            //LOG.log(Level.INFO, "*** Response 2 sent by the server: ***");
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.toString(), ex);
         } finally {
