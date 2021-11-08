@@ -13,6 +13,10 @@ public class ServerWorker implements Runnable {
 
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
 
+    private Socket clientSocket;
+    private BufferedReader in = null;
+    private BufferedWriter out = null;
+
     /**
      * Instantiation of a new worker mapped to a socket
      *
@@ -26,6 +30,13 @@ public class ServerWorker implements Runnable {
          *   server calls the ServerWorker.run method.
          *   Don't call the ServerWorker.run method here. It has to be called from the Server.
          */
+        this.clientSocket = clientSocket;
+        try {
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, null, e);
+        }
 
     }
 
@@ -44,6 +55,13 @@ public class ServerWorker implements Runnable {
          *     - Handle the message
          *     - Send to result to the client
          */
+        try {
+            while (!clientSocket.isClosed()) {
+                in.readLine();
+            }
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, null, e);
+        }
 
     }
 }
