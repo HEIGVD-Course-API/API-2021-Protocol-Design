@@ -51,8 +51,11 @@ public class Client {
 
             LOG.log(Level.INFO, "*** Response sent by the server: ***");
             String line;
-            while (!(line = in.readLine()).equals("Type HELP to see example of commands.")) {
-                LOG.log(Level.INFO, line);
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+                if(line.equals("Type HELP to see example of commands.")){
+                    break;
+                }
             }
             boolean quit = false;
             while(!quit){
