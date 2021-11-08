@@ -26,7 +26,7 @@ S [ACK] : Welcome!
 C bonjour
 S [ERROR] : Unknown word 'bonjour'
 C + 2 a
-S [ERROR] : Unknown word 'a'
+S [ERROR] : Not a number 'a'
 C / 1 0
 S [ERROR] : Division by zero
 C exit
