@@ -39,6 +39,63 @@ public class ServerWorker implements Runnable {
         }
     }
 
+    public static boolean isNumeric(String string) {
+        int intValue;
+
+        System.out.printf("Parsing string: \"%s\"%n", string);
+
+        if(string == null || string.equals("")) {
+            System.out.println("String cannot be parsed, it is null or empty.");
+            return false;
+        }
+
+        try {
+            intValue = Integer.parseInt(string);
+            return true;
+        } catch (NumberFormatException e) {
+            System.out.println("Input String cannot be parsed to Integer.");
+        }
+        return false;
+    }
+
+    private String showOperation(String line) {
+        String[] args = line.split(" ");
+        if (args.length == 3) {
+            if (isNumeric(args[1]) && isNumeric(args[2])) {
+                double x = Double.parseDouble(args[1]);
+                double y = Double.parseDouble(args[2]);
+                if (args[0].equalsIgnoreCase("ADD")){
+                    return String.format("> %.1f", x + y);
+                } else if (args[0].equalsIgnoreCase("SUB")) {
+                    return String.format("> %.1f", x - y);
+                } else if (args[0].equalsIgnoreCase("MUL")) {
+                    return String.format("> %.1f", x * y);
+                } else if (args[0].equalsIgnoreCase("DIV")) {
+                    if (y != 0)
+                        return String.format("> %.1f", x / y);
+                    return "> Cannot divide by 0.";
+                }
+            }
+
+        }
+
+
+        return "> Error: invalid command.";
+    }
+
+    private String showHelp() {
+        return "> Existing commands:\n" +
+                "HELP\t: Show all the commands & operations. Provides examples.\n" +
+                "COMPUTE [OPERATION] [OPERAND1] [OPERAND2] : Execute the operation given as argument.\n" +
+                "BYE\t: Terminate the connection.\n\n" +
+                "Exisiting operations:\n" +
+                "ADD (addition)\n" +
+                "SUB (substraction)\n" +
+                "MUL (mutiplication)\n" +
+                "DIV (division)\n\n" +
+                "Example: to execute an addition, type: COMPUTE ADD 1 2.";
+    }
+
     /**
      * Run method of the thread.
      */
@@ -57,18 +114,25 @@ public class ServerWorker implements Runnable {
 
         String line;
 
-        out.println("Welcome to the Multi-Threaded Server.\nSend me text lines and conclude with the BYE command.");
+        out.println("> Welcome, you are now connected with our calculation server.\nType HELP to see example of commands.");
         out.flush();
         try {
             LOG.info("Reading until client sends BYE or closes the connection...");
             while ((line = in.readLine()) != null) {
-                if (line.equalsIgnoreCase("bye")) {
+                if (line.equalsIgnoreCase("help")) {
+                    out.println(showHelp());
+                    out.flush();
+                } else if (line.equalsIgnoreCase("bye")) {
                     out.println("> Good bye!");
                     out.flush();
                     break;
+                } else {
+                    System.out.println("From client: " + line);
+                    out.println(showOperation(line));
+                    out.flush();
                 }
-                out.println("> " + line.toUpperCase());
-                System.out.println("From client: " + line);
+
+                out.println("> END TRANSMISSION");
                 out.flush();
             }
 
