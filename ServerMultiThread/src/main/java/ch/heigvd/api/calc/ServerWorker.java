@@ -39,13 +39,10 @@ public class ServerWorker implements Runnable {
         }
     }
 
-    public static boolean isNumeric(String string) {
+    private static boolean isNumeric(String string) {
         int intValue;
 
-        System.out.printf("Parsing string: \"%s\"%n", string);
-
         if(string == null || string.equals("")) {
-            System.out.println("String cannot be parsed, it is null or empty.");
             return false;
         }
 
@@ -60,26 +57,25 @@ public class ServerWorker implements Runnable {
 
     private String showOperation(String line) {
         String[] args = line.split(" ");
-        if (args.length == 3) {
-            if (isNumeric(args[1]) && isNumeric(args[2])) {
-                double x = Double.parseDouble(args[1]);
-                double y = Double.parseDouble(args[2]);
-                if (args[0].equalsIgnoreCase("ADD")){
-                    return String.format("> %.1f", x + y);
-                } else if (args[0].equalsIgnoreCase("SUB")) {
-                    return String.format("> %.1f", x - y);
-                } else if (args[0].equalsIgnoreCase("MUL")) {
-                    return String.format("> %.1f", x * y);
-                } else if (args[0].equalsIgnoreCase("DIV")) {
-                    if (y != 0)
-                        return String.format("> %.1f", x / y);
-                    return "> Cannot divide by 0.";
+        if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("COMPUTE")) {
+                if (isNumeric(args[2]) && isNumeric(args[3])) {
+                    double x = Double.parseDouble(args[2]);
+                    double y = Double.parseDouble(args[3]);
+                    if (args[1].equalsIgnoreCase("ADD")){
+                        return String.format("> %.1f", x + y);
+                    } else if (args[1].equalsIgnoreCase("SUB")) {
+                        return String.format("> %.1f", x - y);
+                    } else if (args[1].equalsIgnoreCase("MUL")) {
+                        return String.format("> %.1f", x * y);
+                    } else if (args[1].equalsIgnoreCase("DIV")) {
+                        if (y != 0)
+                            return String.format("> %.1f", x / y);
+                        return "> Cannot divide by 0.";
+                    }
                 }
             }
-
         }
-
-
         return "> Error: invalid command.";
     }
 
