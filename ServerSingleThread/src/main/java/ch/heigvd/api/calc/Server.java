@@ -13,6 +13,7 @@ public class Server {
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
     private final int PORT = 9907;
+
     /**
      * Main function to start the server
      */
@@ -71,12 +72,49 @@ public class Server {
         BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
         String line;
+        String[] tokens;
+        String operand;
 
         LOG.info("Reading until client sends BYE");
+
+        writer.write("AVAILABLE OPERATION (+) (-) (*) (/)");
+        writer.flush();
+
         while ((line = reader.readLine()) != null) {
-            if (line.equalsIgnoreCase("bye")) {
+            tokens = line.split(" ");
+            if (line.equals("BYE CLRF")) {
                 break;
             }
+
+            if(tokens.length != 4){
+                writer.write("ERROR 400 SYNTAX ERROR");
+
+            }
+            else if(tokens[0].equals("COMPUTE")){
+                operand = tokens[1];
+                if(operand.equals("+")){
+                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) + Integer.parseInt(tokens[3])));
+
+                }
+                else if(operand.equals("-")){
+                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) - Integer.parseInt(tokens[3])));
+
+                }
+                else if(operand.equals("*")){
+                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) * Integer.parseInt(tokens[3])));
+
+                }
+                else if(operand.equals("/")){
+                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) / Integer.parseInt(tokens[3])));
+
+                }
+                else{
+                    writer.write("ERROR 300 UNKNOWN OPERATIONS");
+
+                }
+
+            }
+            writer.flush();
         }
     }
 }
