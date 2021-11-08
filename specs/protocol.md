@@ -1,4 +1,5 @@
 # Damien Maier - Nelson Jeanrenaud
+# ACI - API Calculator Protocol
 
 ## Comportement général
 * Le protocole utilise TCP. Le serveur attend des connexions sur le port 7589.
