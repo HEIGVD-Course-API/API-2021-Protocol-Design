@@ -7,12 +7,13 @@ public class ACI_Client extends Client{
     private final String[] operations = {"ADD", "SUB", "MUL"};
     private final String[] statusCode = {"RES", "ERR", "CLO"};
     public enum operation {ADD, SUB, MUL}
+
     public int operation(operation op, int... operands){
         StringBuilder msg = new StringBuilder(operations[op.ordinal()]);
         for (int operand: operands) {
             msg.append(" ").append(operand);
         }
-        send(msg.toString());
+        send(msg.append('\n').toString());
         return waitAndTranslateResponse();
     }
     private int waitAndTranslateResponse(){
@@ -20,7 +21,7 @@ public class ACI_Client extends Client{
         String statusCode = response[0];
         switch(statusCode){
             case "RES":
-                return Integer.getInteger(response[1]);
+                return Integer.parseInt(response[1]);
             case "CLO":
             case "ERR":
                 LOG.log(Level.SEVERE, response[1]);

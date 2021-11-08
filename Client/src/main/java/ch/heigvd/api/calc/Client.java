@@ -1,6 +1,7 @@
 package ch.heigvd.api.calc;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.net.Socket;
@@ -13,15 +14,12 @@ public class Client {
     protected static final Logger LOG = Logger.getLogger(Client.class.getName());
 
     // Fields
-    private String serverHost;
+    private InetAddress serverHost;
     private Socket clientSocket;
     private BufferedWriter out;
     private BufferedReader in;
 
-    public boolean connect(String serverHost, int port) {
-        if (serverHost.isEmpty())
-            return false;
-
+    public boolean connect(InetAddress serverHost, int port) {
         this.serverHost = serverHost;
         try {
             // Initializing a new connection
@@ -103,10 +101,14 @@ public class Client {
          */
 
         ACI_Client clt = new ACI_Client();
-        if(clt.connect("localhost", 7548)){
-            System.out.println(clt.operation(ACI_Client.operation.ADD, 1, 1, 3));
-            clt.close();
-            //System.out.println(clt.receive());
+        try {
+            if (clt.connect(InetAddress.getLocalHost(), 7548)) {
+                System.out.println(clt.operation(ACI_Client.operation.ADD, 1, 1, 3));
+                clt.close();
+                //System.out.println(clt.receive());
+            }
+        }catch(Exception ex){
+            LOG.log(Level.SEVERE, "bibou");
         }
 
     }
