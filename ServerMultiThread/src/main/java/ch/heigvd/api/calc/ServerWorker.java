@@ -34,6 +34,11 @@ public class ServerWorker implements Runnable {
         }
     }
 
+    /**
+     * Helper to check is given string is a number.
+     * @param string string to test
+     * @return true if string can be parsed
+     */
     private static boolean isNumeric(String string) {
         try {
             Double.parseDouble(string);
@@ -43,8 +48,13 @@ public class ServerWorker implements Runnable {
         }
     }
 
-    private String showOperation(String line) {
-        String[] args = line.split(" ");
+    /**
+     * Do an operation given by the args
+     * @param arg contains all the arguments needed to make an operation
+     * @return a string with either the result of the operation or an error message
+     */
+    private String showOperation(String arg) {
+        String[] args = arg.split(" ");
         if (args.length == 4) {
             if (args[0].equalsIgnoreCase("COMPUTE")) {
                 if (isNumeric(args[2]) && isNumeric(args[3])) {
@@ -67,6 +77,10 @@ public class ServerWorker implements Runnable {
         return "> Error: invalid command.";
     }
 
+    /**
+     * Helper showing all the commands and operations
+     * @return string showing a list of commands and operations
+     */
     private String showHelp() {
         return "> Existing commands:\n" +
                 "HELP\t: Show all the commands & operations. Provides examples.\n" +
