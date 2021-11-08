@@ -77,39 +77,39 @@ public class Server {
 
         LOG.info("Reading until client sends BYE");
 
-        writer.write("AVAILABLE OPERATION (+) (-) (*) (/)");
+        writer.write("AVAILABLE OPERATION (+) (-) (*) (/)\r\n");
         writer.flush();
 
         while ((line = reader.readLine()) != null) {
             tokens = line.split(" ");
-            if (line.equals("BYE CLRF")) {
+            if (line.equals("BYE\r\n")) {
                 break;
             }
 
             if(tokens.length != 4){
-                writer.write("ERROR 400 SYNTAX ERROR");
+                writer.write("ERROR 400 SYNTAX ERROR\r\n");
 
             }
             else if(tokens[0].equals("COMPUTE")){
                 operand = tokens[1];
                 if(operand.equals("+")){
-                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) + Integer.parseInt(tokens[3])));
+                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) + Integer.parseInt(tokens[3]) +"\r\n"));
 
                 }
                 else if(operand.equals("-")){
-                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) - Integer.parseInt(tokens[3])));
+                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) - Integer.parseInt(tokens[3]) +"\r\n"));
 
                 }
                 else if(operand.equals("*")){
-                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) * Integer.parseInt(tokens[3])));
+                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) * Integer.parseInt(tokens[3]) +"\r\n"));
 
                 }
                 else if(operand.equals("/")){
-                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) / Integer.parseInt(tokens[3])));
+                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) / Integer.parseInt(tokens[3]) +"\r\n"));
 
                 }
                 else{
-                    writer.write("ERROR 300 UNKNOWN OPERATIONS");
+                    writer.write("ERROR 300 UNKNOWN OPERATIONS\r\n");
 
                 }
 

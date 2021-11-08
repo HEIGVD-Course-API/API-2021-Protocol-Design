@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Objects;
 
 /**
  * Calculator client implementation
@@ -40,26 +41,30 @@ public class Client {
         String userInput = "";
 
         try {
-            clientSocket = new Socket("localhost", 9999);
+            clientSocket = new Socket("localhost", 9907);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             stdin = new BufferedReader(new InputStreamReader(System.in));
 
-            serverOutput = in.readLine();
 
             do
             {
-                System.out.println(serverOutput);
+                LOG.log(Level.INFO, serverOutput);
+                //System.out.println(serverOutput);
             }
             while(serverOutput.equals("AVAILABLE OPERATION (+) (-) (*) (/)\r\n"));
 
-            while(!userInput.equals("BYE")){
-                    LOG.log(Level.INFO, serverOutput);
-                    serverOutput = in.readLine();
-                    userInput = stdin.readLine();
-                    out.write(userInput);
-                    out.flush();
+
+            do{
+                //LOG.log(Level.INFO, serverOutput);
+                serverOutput = in.readLine();
+                System.out.println(serverOutput);
+                userInput = stdin.readLine();
+                out.write(userInput + "\r\n");
+                out.flush();
             }
+            while(!userInput.equals("BYE"));
+
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.toString(), ex);
         } finally {
