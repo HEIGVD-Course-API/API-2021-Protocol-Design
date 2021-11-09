@@ -51,10 +51,7 @@ public class Server {
      * Start the server on a listening socket.
      */
     private void start() {
-        /* TODO: implement the receptionist server here.
-         *  The receptionist just creates a server socket and accepts new client connections.
-         *  For a new client connection, the actual work is done by the handleClient method below.
-         */
+
         ServerSocket serverSocket = null;
         Socket clientSocket = null;
 
@@ -179,8 +176,6 @@ public class Server {
         out.write("Answer : " + processCalculus(currentCalculus) + "\n");
         out.flush();
 
-        out.write("Thank u brother ! \n");
-        out.flush();
         clientSocket.close();
         in.close();
         out.close();

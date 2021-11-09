@@ -11,9 +11,33 @@ import java.util.logging.Logger;
 public class Client {
 
     private static final Logger LOG = Logger.getLogger(Client.class.getName());
-    public static  final int PORT = 1339;
-    public static  final String SERVER = "localhost";
+    public static final int PORT = 1339;
+    public static final String SERVER = "localhost";
 
+    public static void getMsgFromServer(BufferedReader in) throws IOException {
+        int cnt = 0;
+        String msgFromServ;
+        while (((msgFromServ = in.readLine()) != null) && (!(msgFromServ).equals(""))) {
+            ++cnt;
+            System.out.println(msgFromServ);
+        }
+        if (cnt == 0) {
+            System.out.println("No answer From Server ! \n");
+        }
+    }
+
+    public static Socket connect(String srv, int port) throws IOException {
+        Socket clientSocket = null;
+        clientSocket = new Socket(SERVER, PORT);
+        return clientSocket;
+    }
+
+    public static void sendRequest(String request, BufferedWriter out) throws IOException {
+        //send request
+        out.write(request + "\r\n");
+        out.flush();
+
+    }
 
 
     /**
@@ -31,38 +55,37 @@ public class Client {
         BufferedReader in = null;
 
         try {
-            clientSocket = new Socket(SERVER, PORT);
+
+            //Connect to the server
+            clientSocket = connect(SERVER, PORT);
+
+            //Create pipes
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-            in  = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
             //display Welcome MSG
-            String msgFromServ;
-            while(!(msgFromServ = in.readLine()).equals("")){
-                System.out.println(msgFromServ);
-            }
+            getMsgFromServer(in);
 
             String userRequest;
 
+            while (true) {
 
-            do{
                 //get userInput
                 userRequest = stdin.readLine();
-                System.out.println(userRequest);
-                if(userRequest.equalsIgnoreCase("quit"))
+
+                //condition to stop client
+                if (userRequest.equalsIgnoreCase("quit"))
                     break;
 
-                //send request
-                out.write(userRequest+"\r\n");
-                out.flush();
+                //send request to serv
+                sendRequest(userRequest, out);
 
-                while((msgFromServ = in.readLine()) != null ){
-                    System.out.println(msgFromServ);
-                }
+                //get response
+                getMsgFromServer(in);
 
-            }while(!userRequest.equalsIgnoreCase("quit"));
+            }
             clientSocket.close();
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             LOG.log(Level.SEVERE, ex.toString(), ex);
         } finally {
             try {
@@ -76,7 +99,7 @@ public class Client {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
             try {
-                if (clientSocket != null && ! clientSocket.isClosed()) clientSocket.close();
+                if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }

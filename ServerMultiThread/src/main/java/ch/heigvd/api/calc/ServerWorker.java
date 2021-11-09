@@ -9,9 +9,15 @@ import java.util.logging.Logger;
 /**
  * Calculator worker implementation
  */
-public class ServerWorker implements Runnable {
+public class ServerWorker extends Server implements Runnable {
+
+    Socket clientSocket;
+    BufferedReader in = null;
+    BufferedWriter out = null;
 
     private final static Logger LOG = Logger.getLogger(ServerWorker.class.getName());
+
+
 
     /**
      * Instantiation of a new worker mapped to a socket
@@ -21,11 +27,13 @@ public class ServerWorker implements Runnable {
     public ServerWorker(Socket clientSocket) {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
-
-        /* TODO: prepare everything for the ServerWorker to run when the
-         *   server calls the ServerWorker.run method.
-         *   Don't call the ServerWorker.run method here. It has to be called from the Server.
-         */
+        try {
+            this.clientSocket = clientSocket;
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+        }catch(IOException ex) {
+            Logger.getLogger(ServerWorker.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 
@@ -35,15 +43,50 @@ public class ServerWorker implements Runnable {
     @Override
     public void run() {
 
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
+        String line;
+        boolean shouldRun = true;
 
+
+        try {
+            LOG.info("Reading until client sends BYE or closes the connection...");
+            sendWelcomeMessage(out);
+
+            while ((shouldRun) && (line = in.readLine()) != null) {
+                if (line.equalsIgnoreCase("bye")) {
+                    shouldRun = false;
+                }
+                handleClient(clientSocket);
+
+            }
+
+            LOG.info("Cleaning up resources...");
+            clientSocket.close();
+            in.close();
+            out.close();
+
+        } catch (IOException ex) {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+        }
     }
 }
