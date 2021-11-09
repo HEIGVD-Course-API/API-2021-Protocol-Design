@@ -42,26 +42,30 @@ public class Client {
             clientSocket = new Socket("localhost", 3000);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String n1;
-            String n2;
-            String op;
+            String command;
 
-
-            LOG.log(Level.INFO, "Enter the first number");
-            n1 = stdin.readLine();
-
-            LOG.log(Level.INFO, "Enter the second number");
-            n2 = stdin.readLine();
-
-            LOG.log(Level.INFO, "Enter the operation");
-            op = stdin.readLine();
-
-            LOG.log(Level.INFO, "You've entered: " + n1 + " " + n2 + " " + op);
-
-            out.write(op + " " + n1 + " " + n2 + "\n");
+            out.write("HELLO\n");
             out.flush();
 
-            LOG.log(Level.INFO, in.readLine());
+            String line;
+            while((line = in.readLine()) != null){
+                LOG.log(Level.INFO, line);
+            }
+
+            while(true){
+                LOG.log(Level.INFO, "Enter a command:");
+                command = stdin.readLine();
+
+
+                out.write(command + "\n");
+                out.flush();
+                while((line = in.readLine()) != null){
+                    LOG.log(Level.INFO, line);
+
+                }
+            }
+
+
 
         }catch(IOException e){
             LOG.log(Level.SEVERE, e.toString(), e);

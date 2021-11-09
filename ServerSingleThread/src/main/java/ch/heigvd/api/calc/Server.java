@@ -83,6 +83,7 @@ public class Server {
          *     - Send to result to the client
          */
 
+        LOG.info("Handle client");
         BufferedReader reader = null;
         BufferedWriter writer = null;
 
@@ -92,6 +93,7 @@ public class Server {
         while (!reader.readLine().equals("HELLO")) {}
 
         writer.write(WELCOME_MESS + HELP_MESS);
+        writer.flush();
 
         String line;
         while (!(line = reader.readLine()).equals("END")) {
@@ -104,11 +106,11 @@ public class Server {
             switch (commands[0]) {
                 case "ADD" :
                     LOG.log(Level.INFO, "Add operation");
-                    writer.write("The result is " + (Integer.parseInt(commands[1]) + Integer.parseInt(commands[2])));
+                    writer.write("The result is " + (Integer.parseInt(commands[1]) + Integer.parseInt(commands[2])) + "\n");
                     break;
                 case "MULT" :
                     LOG.log(Level.INFO, "Mult operation");
-                    writer.write("The result is " + (Integer.parseInt(commands[1]) * Integer.parseInt(commands[2])));
+                    writer.write("The result is " + (Integer.parseInt(commands[1]) * Integer.parseInt(commands[2])) + "\n");
                     break;
                 case "HElP" :
                     LOG.log(Level.INFO, "Asked for help");
