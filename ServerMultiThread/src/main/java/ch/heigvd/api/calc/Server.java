@@ -36,10 +36,11 @@ public class Server {
          *  by a new ServerWorker.
          */
         try {
+            System.out.println("Je suis le server est je suis prêt à avoir une connexion!!!");
             ServerSocket serverSocket = new ServerSocket(port);
+
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-
                 ServerWorker worker = new ServerWorker(clientSocket);
                 Thread t = new Thread(worker);
                 t.start();
@@ -47,6 +48,8 @@ public class Server {
 
         } catch (IOException e) {
             LOG.log(Level.SEVERE, null, e);
+        } finally {
+
         }
     }
 }

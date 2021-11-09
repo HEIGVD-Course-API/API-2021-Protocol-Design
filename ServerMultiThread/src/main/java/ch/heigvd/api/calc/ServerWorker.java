@@ -32,8 +32,8 @@ public class ServerWorker implements Runnable {
          */
         this.clientSocket = clientSocket;
         try {
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(this.clientSocket.getOutputStream()));
         } catch (IOException e) {
             LOG.log(Level.SEVERE, null, e);
         }
@@ -56,11 +56,43 @@ public class ServerWorker implements Runnable {
          *     - Send to result to the client
          */
         try {
+            System.out.println("Coucou je suis le run du thread");
+            String s = "";
+            String[] content = new String[]{};
+            int i = 0;
             while (!clientSocket.isClosed()) {
-                in.readLine();
+                System.out.println(++i);
+                s = in.readLine();
+                if (s == null)
+                    break;
+                System.out.println(s);
+                content = s.split(" +");
+                if (content.length != 0 && content.length != 3) {
+                    System.out.println("[ERROR]");
+                    out.write("[ERROR] : Wrong expression\r\n");
+                    out.flush();
+                }
             }
         } catch (IOException e) {
             LOG.log(Level.SEVERE, null, e);
+        } finally {
+            // Closing the connections properly
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, null, e);
+            }
+            try {
+                in.close();
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, null, e);
+            }
+            try {
+                out.close();
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE, null, e);
+            }
+            System.out.println("Le thread dit bye-bye");
         }
 
     }

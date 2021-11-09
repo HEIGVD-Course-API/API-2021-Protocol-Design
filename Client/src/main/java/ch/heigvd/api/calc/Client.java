@@ -1,7 +1,8 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -11,6 +12,11 @@ import java.util.logging.Logger;
 public class Client {
 
     private static final Logger LOG = Logger.getLogger(Client.class.getName());
+
+    private static final int port = 11111;
+    private static Socket socket;
+    private static BufferedReader in = null;
+    private static BufferedWriter out = null;
 
     /**
      * Main function to run client
@@ -34,6 +40,25 @@ public class Client {
          */
 
         stdin = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            socket = new Socket("localhost", port);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
+            System.out.println("Salut je suis le client");
+            String q = "";
+            String r = "";
+            while (true) {
+                q = stdin.readLine();
+                System.out.printf("Je vais envoyer: '%s'\n", q);
+                out.write(q + "\r\n");
+                out.flush();
+
+                r = in.readLine();
+                System.out.println(r);
+            }
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, null, e);
+        }
     }
 }
