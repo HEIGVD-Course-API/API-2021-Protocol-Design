@@ -108,24 +108,32 @@ public class Server {
                 }
                 String[] parts = line.split(" ");
                 String result = "";
-                switch (parts[0]) {
-                    case "ADD":
-                        try {
-                            result = add(Integer.parseInt(parts[1]),
-                                    Integer.parseInt(parts[2]));
-                        } catch (InvalidAttributeValueException e) {
-                            LOG.log(Level.SEVERE, e.toString(), e);
-                        }
-                        break;
-                    case "MUL":
-                        try {
-                            result = multiply(Integer.parseInt(parts[1]),
-                                    Integer.parseInt(parts[2]));
-                        } catch (InvalidAttributeValueException e) {
-                            LOG.log(Level.SEVERE, e.toString(), e);
-                        }
-                        break;
+
+                try {
+                    switch (parts[0]) {
+                        case "ADD":
+                            try {
+                                result = add(Integer.parseInt(parts[1]),
+                                        Integer.parseInt(parts[2]));
+                            } catch (InvalidAttributeValueException e) {
+                                LOG.log(Level.SEVERE, e.toString(), e);
+                            }
+                            break;
+                        case "MUL":
+                            try {
+                                result = multiply(Integer.parseInt(parts[1]),
+                                        Integer.parseInt(parts[2]));
+                            } catch (InvalidAttributeValueException e) {
+                                LOG.log(Level.SEVERE, e.toString(), e);
+                            }
+                            break;
+                        default:
+                            result = "ERROR : UNSUPPORTED OPERATION\n";
+                    }
+                } catch (Exception e) {
+                    result = "ERROR : " + e.getMessage() + "\n";
                 }
+
                 out.write(result);
                 out.flush();
             }
