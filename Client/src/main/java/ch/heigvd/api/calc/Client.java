@@ -61,10 +61,8 @@ public class Client {
 
                 out.write(command + "\n");
                 out.flush();
-                while((line = in.readLine()) != null){
-                    LOG.log(Level.INFO, line);
-
-                }
+                LOG.log(Level.INFO, in.readLine());
+                LOG.log(Level.INFO, in.readLine());
             }
 
 
