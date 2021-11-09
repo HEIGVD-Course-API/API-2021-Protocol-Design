@@ -93,13 +93,13 @@ public class Server {
         while (!reader.readLine().equals("HELLO")) {}
 
         writer.write(WELCOME_MESS + HELP_MESS);
-        writer.flush();
 
-        String line;
-        while (!(line = reader.readLine()).equals("END")) {
+        String line = "";
+        while (!line.equals("END")) {
             writer.write(ENTER_CALCUL_MESS);
             writer.flush();
 
+            line = reader.readLine();
             String[] commands = line.split(" ");
 
             //check operation
@@ -120,8 +120,9 @@ public class Server {
 
             writer.flush();
 
-            writer.close();
-            reader.close();
+
         }
+        writer.close();
+        reader.close();
     }
 }

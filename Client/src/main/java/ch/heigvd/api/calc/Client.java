@@ -50,10 +50,12 @@ public class Client {
             String line;
             while((line = in.readLine()) != null){
                 LOG.log(Level.INFO, line);
+                if(line.equals("Enter your calcul.")){
+                    break;
+                }
             }
 
             while(true){
-                LOG.log(Level.INFO, "Enter a command:");
                 command = stdin.readLine();
 
 
