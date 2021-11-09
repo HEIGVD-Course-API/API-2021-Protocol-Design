@@ -26,10 +26,11 @@ public class Server {
     try {
       // Create the server socket
       ServerSocket serverSocket = new ServerSocket(PORT);
-
+      System.out.println("Server running");
       // Waiting for new clients to connect
       while (true) {
         Socket clientSocket = serverSocket.accept();
+        System.out.println("New client connected");
 
         // Create new thread to handle this client
         ServerWorker worker = new ServerWorker(clientSocket); // create worker

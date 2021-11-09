@@ -38,12 +38,8 @@ public class ServerWorker implements Runnable {
   public void run() {
     try {
       out.write(
-          "Welcome to your online calculator !\n"
-              + "Send 'bye' to close the connection.\n"
-              + "Available commands:\n"
-              + "- add x y\n"
-              + "- sub x y\n"
-              + "- mul x y\nEnjoy !\n\n");
+          "Welcome to your online calculator ! "
+              + "Compute with '{add|sub|mul} x y'. Close connexion with 'bye'\n");
       out.flush();
       String line;
       while (!clientSocket.isClosed()) {
@@ -53,7 +49,9 @@ public class ServerWorker implements Runnable {
           if (s.length < 3) {
             if (s[0].equalsIgnoreCase("bye")) {
               out.write("Goodbye !\n");
+              out.flush();
               clientSocket.close();
+              System.out.println("Client disconnected");
               break;
             }
             sendErrorCode();
