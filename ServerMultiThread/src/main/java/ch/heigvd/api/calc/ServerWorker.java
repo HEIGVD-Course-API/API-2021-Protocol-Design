@@ -26,10 +26,6 @@ public class ServerWorker implements Runnable {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
-        /* TODO: prepare everything for the ServerWorker to run when the
-         *   server calls the ServerWorker.run method.
-         *   Don't call the ServerWorker.run method here. It has to be called from the Server.
-         */
         this.clientSocket = clientSocket;
         try {
             in = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
@@ -37,7 +33,6 @@ public class ServerWorker implements Runnable {
         } catch (IOException e) {
             LOG.log(Level.SEVERE, null, e);
         }
-
     }
 
     /**
@@ -47,6 +42,8 @@ public class ServerWorker implements Runnable {
     public void run() {
 
         try {
+            System.out.printf("START : Connection with %s\n", clientSocket.getInetAddress());
+
             out.write("[ACK] : Welcome!\r\n");
             out.flush();
 
@@ -54,28 +51,18 @@ public class ServerWorker implements Runnable {
             String response;
             String[] content;
 
-            // Represents the conversation's state:
-            // 0 -> 2 : operand (in)validity
+            // This represents the conversation's state:
+            // 0 -> 2 : (in)validity of the operands
             // -1 : error while performing the computation
             // -2 : exiting
-            short state;
+            byte state;
 
             int lhs = 0;
             int rhs = 0;
             int result = 0;
             while (!clientSocket.isClosed()) {
-
                 query = in.readLine();
-                if (query == null)
-                    break;
-
-                System.out.println(query);
                 content = query.split(" +");
-
-                System.out.printf("content's content [%d]:\n", content.length);
-                for (int i = 0; i < content.length; ++i)
-                    System.out.printf("'%s' ", content[i]);
-                System.out.println();
 
                 response = "";
                 state = 0;
@@ -87,6 +74,8 @@ public class ServerWorker implements Runnable {
                         response = "[ERROR] : Bad expression, expected 'operator int1 int2'";
                     }
                 } else {
+
+                    // Operand 1
                     try {
                         lhs = Integer.parseInt(content[1]);
                         ++state;
@@ -94,6 +83,7 @@ public class ServerWorker implements Runnable {
                         response = "[ERROR] : Left operand is not a valid integer";
                     }
 
+                    // Operand 2
                     try {
                         rhs = Integer.parseInt(content[2]);
                         ++state;
@@ -104,6 +94,7 @@ public class ServerWorker implements Runnable {
                             response = "[ERROR] : Both operands are not valid integers";
                     }
 
+                    // Operator
                     if (state == 2) {
                         switch (content[0]) {
                             case "+":
@@ -128,6 +119,8 @@ public class ServerWorker implements Runnable {
                                 state = -1;
                                 break;
                         }
+
+                        // If no error occurred while performing the operation
                         if (state > -1)
                             response = String.format("[OK] : %d", result);
                     }
@@ -135,6 +128,8 @@ public class ServerWorker implements Runnable {
 
                 out.write(response + "\r\n");
                 out.flush();
+
+                // The client sent the 'exit' command
                 if (state == -2) {
                     clientSocket.close();
                     break;
@@ -142,7 +137,10 @@ public class ServerWorker implements Runnable {
             }
         } catch (IOException e) {
             LOG.log(Level.SEVERE, null, e);
+        } catch (NullPointerException e) {
+            System.out.println("The client may have closed the connection on its own... :(");
         } finally {
+
             // Closing the connections properly
             try {
                 if (!clientSocket.isClosed())
@@ -160,7 +158,8 @@ public class ServerWorker implements Runnable {
             } catch (IOException e) {
                 LOG.log(Level.SEVERE, null, e);
             }
-        }
 
+            System.out.printf("END : Connection with %s\n", clientSocket.getInetAddress());
+        }
     }
 }
