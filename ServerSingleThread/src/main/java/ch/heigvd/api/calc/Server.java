@@ -56,9 +56,12 @@ public class Server {
                 // Blocked until a connection is made
                 clientSocket = serverSocket.accept();
 
-                handleClient(clientSocket);
+                try {
+                    handleClient(clientSocket);
+                } catch (IOException e) {
+                    clientSocket.close();
+                }
 
-                clientSocket.close();
         }
 
         } catch (IOException e) {

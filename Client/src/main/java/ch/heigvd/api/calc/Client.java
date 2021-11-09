@@ -42,7 +42,7 @@ public class Client {
             clientSocket = new Socket("localhost", 3000);
             out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String command;
+            String command = "";
 
             out.write("HELLO\n");
             out.flush();
@@ -55,7 +55,7 @@ public class Client {
                 }
             }
 
-            while(true){
+            while(!command.equals("END")){
                 command = stdin.readLine();
 
 
