@@ -1,6 +1,6 @@
 package ch.heigvd.api.calc;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.logging.Level;
@@ -33,6 +33,16 @@ public class Server {
          *  For a new client connection, the actual work is done in a new thread
          *  by a new ServerWorker.
          */
+        ServerSocket receptionistSocket = null;
+        Socket clientSocket = null;
+        try {
+            LOG.log(Level.INFO, "Waiting (blocking) for a new client");
 
+            receptionistSocket = new ServerSocket(9999);
+            clientSocket = receptionistSocket.accept();
+            new Thread(new ServerWorker(clientSocket)).start();
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+        }
     }
 }
