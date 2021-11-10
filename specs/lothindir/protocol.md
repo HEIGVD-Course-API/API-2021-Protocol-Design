@@ -1,5 +1,5 @@
 # 1 Introduction
-## 1.1 Objectifs du protocolle
+## 1.1 Objectifs du protocole
 Le protocole CALC permet la communication entre un client et un serveur de calcul au travers d'un réseau TCP/IP. Le client doit pouvoir soumettre des opération artihmétiques au serveur et recevoir la réponse. Chaque serveur doit au moins implémenter l'addition et la soustraction de deux opérandes. Il peut offrir des opérations supplémentaires qui seront communiquées au client lors de la connexion.
 
 ## Fonctionnement
@@ -10,7 +10,7 @@ Chaque demande de calcul est faite grâce au message `COMPUTE` suivit de l'opér
 Si le client n'a plus de requêtes à faire il envoie un message `QUIT` et ferme la connection TCP. Le protocole CALC est sans état.
 
 # 2 Syntaxe
-Le protocole CALC définit 6 messages : `NOTIFY`, `HELP`, `COMPUTE`, `RESULT`, `ERROR` et `QUIT`. Le protocole est un protocole "ligne par ligne" qui utilise la séquence _CRLF_ pour indiquer une fin de ligne. Chaque élément du message est séparé par un espace blanc.
+Le protocole CALC définit 6 messages : `NOTIFY`, `COMPUTE`, `RESULT`, `ERROR` et `QUIT`. Le protocole est un protocole "ligne par ligne" qui utilise la séquence _CRLF_ pour indiquer une fin de ligne. Chaque élément du message est séparé par un espace blanc.
 
 ## 2.1 `NOTIFY`
 Au moment de la connexion du client au serveur, ce dernier envoie un message `NOTIFY` au client avec la liste des opérations supportées. S'ensuit une énumération ligne par ligne des opérations supportées par le serveur. Chaque ligne contient le nom de l'opération ainsi que le nombre d'opérandes à envoyer. Le message est terminé par une ligne composée du texte `END NOTIFY`.
@@ -24,32 +24,25 @@ DIV 2 _CRLF_ \
 POW 2 _CRLF_ \
 END NOTIFY _CRLF_
 
-## 2.2 `HELP`
-Le client peut a tout moment demander de l'aide sur une opération. La syntaxe est la suivante : `HELP <OPERATION> <NB D'OPERANDES>`. Le serveur va renvoyer un message similaire en ajoutant la description de l'opération à la fin du message.
-
-### Exemple
-**Client :** HELP ADD 2 _CRLF_ \
-**Serveur :** HELP ADD 2 Additionne les deux nombres ensemble _CRLF_
-
-## 2.3 `COMPUTE`
+## 2.2 `COMPUTE`
 Le client peut envoyer une demande de calcul au serveur grâce au message `COMPUTE`. Le message est composé de l'opération voulue ainsi que des opérandes requises.
 
 ### Exemple
 COMPUTE DIV 10 2 _CRLF_
 
-## 2.4 `RESULT`
+## 2.3 `RESULT`
 Le serveur renvoie ce message après avoir reçu une demande `COMPUTE` de la part du client. Le message contient le résultat du calcul demandé.
 
 ### Exemple
 RESULT 5 _CRLF_
 
-### 2.5 `ERROR`
+## 2.4 `ERROR`
 Dans le cas où le client envoie un message qui ne peut pas être intérprété par le serveur celui-ci envoie un message d'erreur. Ce dernier est définit par la syntaxe suivante : `ERROR <CODE> <DESCRIPTION DE L'ERREUR>`.
 
 ### Exemple
 ERROR 404 COMMAND NOT FOUND _CRLF_
 
-## 2.6 `QUIT`
+## 2.5 `QUIT`
 Ce message est envoyé par le client pour indiquer au serveur qu'il n'a plus besoin de ses services et que la session est terminée.
 
 # 3 Eléments spécifiques
