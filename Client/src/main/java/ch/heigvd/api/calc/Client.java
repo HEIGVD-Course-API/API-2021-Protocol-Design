@@ -3,6 +3,7 @@ package ch.heigvd.api.calc;
 import java.io.*;
 import java.net.Socket;
 import java.nio.Buffer;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,8 +43,8 @@ public class Client {
 
         try {
             clientSocket = new Socket("localhost", 23000);
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
             String line;
 
             line = in.readLine();
@@ -52,6 +53,9 @@ public class Client {
             LOG.log(Level.INFO, line);
 
             while ((line = stdin.readLine()) != null) {
+                // TODO : Il faudrait plutot terminer la connexion côté serveur
+                // Dans certains cas, le serveur doit être informé de la fin d'une connexion
+                // pour effectuer certaines actions
                 if (line.equalsIgnoreCase("exit")) {
                     break;
                 }
@@ -66,6 +70,8 @@ public class Client {
             }
             LOG.log(Level.INFO, "Bye !");
             clientSocket.close();
+            in.close();
+            out.close();
 
         } catch (IOException e) {
             LOG.log(Level.SEVERE, e.toString(), e);

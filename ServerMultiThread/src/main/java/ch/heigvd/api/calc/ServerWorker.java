@@ -2,6 +2,7 @@ package ch.heigvd.api.calc;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +29,7 @@ public class ServerWorker implements Runnable {
          *   Don't call the ServerWorker.run method here. It has to be called from the Server.
          */
         try {
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), StandardCharsets.UTF_8));
             out = new PrintWriter(clientSocket.getOutputStream());
         } catch (IOException ex) {
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
