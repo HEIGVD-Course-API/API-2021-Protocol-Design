@@ -29,12 +29,6 @@ public class Server {
    * Start the server on a listening socket.
    */
   private void start() {
-
-    /*
-     * TODO: implement the receptionist server here. The receptionist just creates a
-     * server socket and accepts new client connections. For a new client
-     * connection, the actual work is done in a new thread by a new ServerWorker.
-     */
     ServerSocket serverSocket = null;
     try {
       serverSocket = new ServerSocket(PORT);
