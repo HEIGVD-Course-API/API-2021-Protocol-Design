@@ -14,6 +14,9 @@ public class Server {
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
     private final int PORT = 9907;
 
+    BufferedReader reader = null;
+    BufferedWriter writer = null;
+
     /**
      * Main function to start the server
      */
@@ -59,62 +62,77 @@ public class Server {
      */
     private void handleClient(Socket clientSocket) throws IOException {
 
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
+        try {
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
-        String line;
-        String[] tokens;
-        String operand;
+            reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
+            writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
+            String line;
+            String[] tokens;
+            String operand;
+            String result = "RESULT ";
 
-        LOG.info("Reading until client sends BYE");
+            LOG.info("Reading until client sends BYE");
 
-        writer.write("AVAILABLE OPERATION (+) (-) (*) (/)\r\n");
-        writer.flush();
-
-        while ((line = reader.readLine()) != null) {
-            tokens = line.split(" ");
-            if (line.equals("BYE\r\n")) {
-                break;
-            }
-
-            if(tokens.length != 4){
-                writer.write("ERROR 400 SYNTAX ERROR\r\n");
-
-            }
-            else if(tokens[0].equals("COMPUTE")){
-                operand = tokens[1];
-                if(operand.equals("+")){
-                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) + Integer.parseInt(tokens[3]) +"\r\n"));
-
-                }
-                else if(operand.equals("-")){
-                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) - Integer.parseInt(tokens[3]) +"\r\n"));
-
-                }
-                else if(operand.equals("*")){
-                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) * Integer.parseInt(tokens[3]) +"\r\n"));
-
-                }
-                else if(operand.equals("/")){
-                    writer.write("RESULT " + (Integer.parseInt(tokens[2]) / Integer.parseInt(tokens[3]) +"\r\n"));
-
-                }
-                else{
-                    writer.write("ERROR 300 UNKNOWN OPERATIONS\r\n");
-
-                }
-
-            }
+            writer.write("AVAILABLE OPERATION (+) (-) (*) (/)\r\n");
             writer.flush();
+
+            while ((line = reader.readLine()) != null) {
+                tokens = line.split(" ");
+                if (line.equals("BYE\r\n")) {
+                    break;
+                }
+
+                if (tokens.length != 4) {
+                    writer.write("ERROR 400 SYNTAX ERROR\r\n");
+
+                } else if (tokens[0].equals("COMPUTE")) {
+                    operand = tokens[1];
+                    if (operand.equals("+")) {
+                        writer.write(result + (Integer.parseInt(tokens[2]) + Integer.parseInt(tokens[3]) + "\r\n"));
+
+                    } else if (operand.equals("-")) {
+                        writer.write(result + (Integer.parseInt(tokens[2]) - Integer.parseInt(tokens[3]) + "\r\n"));
+
+                    } else if (operand.equals("*")) {
+                        writer.write(result + (Integer.parseInt(tokens[2]) * Integer.parseInt(tokens[3]) + "\r\n"));
+
+                    } else if (operand.equals("/")) {
+                        writer.write(result + (Integer.parseInt(tokens[2]) / Integer.parseInt(tokens[3]) + "\r\n"));
+
+                    } else {
+                        writer.write("ERROR 300 UNKNOWN OPERATIONS\r\n");
+
+                    }
+
+                }
+                writer.flush();
+            }
+            reader.close();
+            writer.close();
+            clientSocket.close();
+        }catch (IOException ex){
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex.getMessage(), ex1);
+                }
+            }
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex.getMessage(), ex1);
+                }
+            }
+            if (clientSocket != null) {
+                try {
+                    clientSocket.close();
+                } catch (IOException ex1) {
+                    LOG.log(Level.SEVERE, ex1.getMessage(), ex1);
+                }
+            }
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 }

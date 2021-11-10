@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 public class Server {
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
+    private final int PORT = 9907;
 
     /**
      * Main function to start the server
@@ -34,5 +35,22 @@ public class Server {
          *  by a new ServerWorker.
          */
 
+        ServerSocket serverSocket = null;
+
+        try{
+            serverSocket = new ServerSocket(PORT);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return;
+        }
+
+        while(true) {
+            try {
+                Socket clienSocket = serverSocket.accept();
+                new Thread(new ServerWorker(clienSocket)).start();
+            }catch (IOException ex){
+                LOG.log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }
