@@ -113,7 +113,7 @@ public class Server {
         return calculus;
     }
 
-    private int processCalculus(Calculus calculus) {
+x    private int processCalculus(Calculus calculus) {
 
         switch (calculus.operation) {
             case ADD:
