@@ -44,17 +44,6 @@ public class ServerWorker implements Runnable {
     @Override
     public void run() {
 
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
-
-
 
         try {
             out.println("Available operation are ADD, SUB, MULT, QUIT to left");

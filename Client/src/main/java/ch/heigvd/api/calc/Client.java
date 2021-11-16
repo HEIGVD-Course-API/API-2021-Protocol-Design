@@ -34,15 +34,7 @@ public class Client {
         BufferedReader in = null; // Read from the Server
         PrintWriter out = null; // Write to the Server
         Socket clientSocket = null;
-        /* TODO: Implement the client here, according to your specification
-         *   The client has to do the following:
-         *   - connect to the server
-         *   - initialize the dialog with the server according to your specification
-         *   - In a loop:
-         *     - read the command from the user on stdin (already created)
-         *     - send the command to the server
-         *     - read the response line from the server (using BufferedReader.readLine)
-         */
+
         try {
             clientSocket = new Socket(HOST, PORT); // Connect to the server
             in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));

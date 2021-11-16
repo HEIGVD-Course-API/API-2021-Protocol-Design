@@ -10,7 +10,7 @@ import java.util.logging.Logger;
  * Calculator server implementation - multi-thread
  */
 public class Server {
-
+    final int LISTENING_PORT = 9999;
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
 
     /**
@@ -27,20 +27,16 @@ public class Server {
      * Start the server on a listening socket.
      */
     private void start() {
-
-        /* TODO: implement the receptionist server here.
-         *  The receptionist just creates a server socket and accepts new client connections.
-         *  For a new client connection, the actual work is done in a new thread
-         *  by a new ServerWorker.
-         */
         ServerSocket receptionistSocket = null;
-        Socket clientSocket = null;
+        //Socket clientSocket = null;
         try {
             LOG.log(Level.INFO, "Waiting (blocking) for a new client");
 
-            receptionistSocket = new ServerSocket(9999);
-            clientSocket = receptionistSocket.accept();
-            new Thread(new ServerWorker(clientSocket)).start();
+            receptionistSocket = new ServerSocket(LISTENING_PORT);
+            while(true) {
+                Socket clientSocket = receptionistSocket.accept();
+                new Thread(new ServerWorker(clientSocket)).start();
+            }
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, null, ex);
         }
