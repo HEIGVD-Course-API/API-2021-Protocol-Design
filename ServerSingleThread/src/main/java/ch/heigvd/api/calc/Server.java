@@ -101,6 +101,7 @@ public class Server {
         while ((c = in.read()) != -1) {
             line += (char) c;
             if (line.contains(EOL)) {
+                LOG.log(Level.INFO, "received : " + line);
                 // remove EOL
                 line = line.replace(EOL, "");
                 if (line.equals(QUIT))

@@ -14,7 +14,8 @@ public class Client {
     private static final String EOL = "CRLF",
             END_OPE = "- END OPERATIONS",
             BEGIN_OPE = "AVAILABLE OPERATIONS",
-            RESULT = "RESULT";
+            RESULT = "RESULT",
+            QUIT = "QUIT";
 
     // crlf ascii 13 et 10
     private static final Logger LOG = Logger.getLogger(Client.class.getName());
@@ -32,15 +33,15 @@ public class Client {
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
         int PORT = 3101;
-        Socket clientSocket = null;
-        BufferedWriter out = null;
+        Socket socket = null;
         BufferedReader in = null;
+        BufferedWriter out = null;
         BufferedReader stdin = null;
 
         try {
-            clientSocket = new Socket("localhost", PORT);
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            socket = new Socket("localhost", PORT);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             stdin = new BufferedReader(new InputStreamReader(System.in));
 
             boolean waitingOperations = false;
@@ -79,6 +80,8 @@ public class Client {
                         System.out.println(line);
                     } else {
                         String userInput = getUserOpeInput(opeList, opeArgsCount, stdin);
+                        if (userInput.equals(QUIT))
+                            break;
                         out.write(userInput + EOL);
                         out.flush();
                     }
@@ -95,7 +98,7 @@ public class Client {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
             try {
-                if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
+                if (socket != null && !socket.isClosed()) socket.close();
             } catch (IOException ex) {
                 LOG.log(Level.SEVERE, ex.toString(), ex);
             }
@@ -122,6 +125,8 @@ public class Client {
                 System.out.print("Input operation and operation variables : ");
                 userInput = stdin.readLine();
 
+                if (userInput.equals(QUIT))
+                    return QUIT;
                 // Check user input against available operations
                 String[] opeArgs = userInput.split(" ");
                 int opeId = opeList.indexOf(opeArgs[0]);
