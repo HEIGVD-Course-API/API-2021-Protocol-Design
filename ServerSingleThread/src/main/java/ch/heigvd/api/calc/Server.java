@@ -95,17 +95,17 @@ public class Server {
                     continue;
                 }
                 String action = instructions[0].toUpperCase();
-                int[] values = Arrays.stream(
+                double[] values = Arrays.stream(
                         instructions, 1, instructions.length
-                ).mapToInt(Integer::valueOf).toArray();
+                ).mapToDouble(Double::valueOf).toArray();
                 // LOG.info("transformed:" + Arrays.toString(values));
                 if(action.equals("ADD")) {
-                    int res = Arrays.stream(values).sum();
+                    double res = Arrays.stream(values).sum();
                     // LOG.info("SUM: " + res);
                     out.println(res);
                     out.flush();
                 } else if(action.equals("SUB")) {
-                    int res = values[0] - Arrays.stream(values, 1, values.length).sum();
+                    double res = values[0] - Arrays.stream(values, 1, values.length).sum();
                     out.println(res);
                     out.flush();
                 } else {
