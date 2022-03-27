@@ -79,7 +79,7 @@ public class Server {
             PrintWriter out = new PrintWriter(outputStream);
             while(true) {
                 String line = in.readLine();
-                if(line == null)
+                if(line == null || line.toUpperCase().equals("QUIT"))
                     return;
                 String[] instructions = Arrays.stream(
                         line.split(" ")
