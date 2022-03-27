@@ -3,6 +3,7 @@ package ch.heigvd.api.calc;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,17 +40,20 @@ public class Client {
             return;
         }
 
+        LOG.info(Arrays.toString(args));
+
         String serverAddress = args[0];
         int serverPort = Integer.valueOf(args[1]);
 
-        OutputStream socketOutputStream = null;
+        PrintWriter socketOutputStream = null;
         InputStream socketInputStream = null;
         String welcome, command, result;
 
         try {
             Socket socket = new Socket(serverAddress, serverPort);
             socketInputStream = socket.getInputStream();
-            socketOutputStream = socket.getOutputStream();
+            socketOutputStream = new PrintWriter(socket.getOutputStream());
+            stdin = new BufferedReader(new InputStreamReader(System.in));
 
             BufferedReader socketReader = new BufferedReader(new InputStreamReader(socketInputStream));
 
@@ -58,21 +62,24 @@ public class Client {
             System.out.println(welcome);
 
 
-            while(!socket.isClosed()){
+            while(socket.isConnected()){
                 // Read command prompt
                 command = socketReader.readLine();
-                System.out.println(command);
+                if(command == null)
+                    return;
+                LOG.info(command);
 
                 // Read input
-                stdin = new BufferedReader(new InputStreamReader(System.in));
+                String input = stdin.readLine();
 
                 // Send user input to server
-                socketOutputStream.write(stdin.read());
+                socketOutputStream.println(input);
                 socketOutputStream.flush();
+                if(input.toUpperCase().strip().equals("QUIT"))
+                    return;
                 // Read response from server
                 result = socketReader.readLine();
-                System.out.println(result);
-
+                LOG.info(result);
             }
         } catch (UnknownHostException e){
             System.out.println("Cannot establish connection to host " + serverAddress + " on port " + serverPort);

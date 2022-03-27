@@ -77,7 +77,11 @@ public class Server {
         ) {
             BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
             PrintWriter out = new PrintWriter(outputStream);
+            out.println("WELCOME !");
+            out.flush();
             while(true) {
+                out.println("PLEASE ENTER COMMAND");
+                out.flush();
                 String line = in.readLine();
                 if(line == null || line.toUpperCase().equals("QUIT"))
                     return;
@@ -86,6 +90,8 @@ public class Server {
                 ).filter(x -> !x.equals("") && !x.equals(" ") && x != null).toArray(String[]::new);
                 // LOG.info("received:" + Arrays.toString(instructions));
                 if(instructions.length < 2) {
+                    out.println("UNRECOGNIZED COMMAND");
+                    out.flush();
                     continue;
                 }
                 String action = instructions[0].toUpperCase();
@@ -101,6 +107,9 @@ public class Server {
                 } else if(action.equals("SUB")) {
                     int res = values[0] - Arrays.stream(values, 1, values.length).sum();
                     out.println(res);
+                    out.flush();
+                } else {
+                    out.println("UNRECOGNIZED COMMAND");
                     out.flush();
                 }
             }
