@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 public class Server {
 
     private final static Logger LOG = Logger.getLogger(Server.class.getName());
+    private final static int PORT = 2400;
 
     /**
      * Main function to start the server
@@ -33,6 +34,21 @@ public class Server {
          *  For a new client connection, the actual work is done in a new thread
          *  by a new ServerWorker.
          */
-
+        ServerSocket serverSocket;
+        try {
+            serverSocket = new ServerSocket(PORT);
+        } catch (IOException ex) {
+            LOG.log(Level.SEVERE, null, ex);
+            return;
+        }
+        while (true) {
+            LOG.info("Waiting (blocking) for a new client...");
+            try {
+                Socket clientSocket = serverSocket.accept();
+                new Thread(new ServantWorker(clientSocket)).start();
+            } catch (IOException ex) {
+                LOG.log(Level.SEVERE, ex.getMessage, ex);
+            }
+        }
     }
 }
