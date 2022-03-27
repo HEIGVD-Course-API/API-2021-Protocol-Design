@@ -95,9 +95,16 @@ public class Server {
                     continue;
                 }
                 String action = instructions[0].toUpperCase();
-                double[] values = Arrays.stream(
-                        instructions, 1, instructions.length
-                ).mapToDouble(Double::valueOf).toArray();
+                double[] values = null;
+                try {
+                    values = Arrays.stream(
+                            instructions, 1, instructions.length
+                    ).mapToDouble(Double::valueOf).toArray();
+                } catch (Exception e) {
+                    out.println("Conversion error");
+                    out.flush();
+                    continue;
+                }
                 // LOG.info("transformed:" + Arrays.toString(values));
                 if(action.equals("ADD")) {
                     double res = Arrays.stream(values).sum();
