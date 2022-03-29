@@ -27,8 +27,6 @@ Then, in this folder, create a file named `protocol.md` and write your **specifi
   * Extensibility
 * Examples: examples of some typical dialogs.
   
-After writing the specification, **submit a Pull Request**
-
 ## Phase 2: review 3 specifications (in pairs, 5 minutes)
 
 - Are there big differences between the specification?
@@ -42,6 +40,8 @@ After writing the specification, **submit a Pull Request**
 * Pick one of the 2 specifications
 * One student uses netcat (nc) to start a server (nc -kl). The other student uses netcat to start a client.
 * Go through a couple of scenarios to validate that your specification is complete (**if you need to ask something to the other student, or if you need to discuss, you probably should make your specification more complete**)
+
+After writing and validating the specification, **submit a Pull Request**
 
 ## Phase 4: watch our proposal (individually, 15 minutes)
 
