@@ -67,7 +67,7 @@ public class Server {
                 if (line.equals("GOODBYE")) {
                     break;
                 }
-                bwt.write(this.calculate(line));
+                bwt.write(this.calculate(line) + "\n");
                 bwt.flush();
             }
             bwt.close();
@@ -80,19 +80,63 @@ public class Server {
     private String calculate(String line) {
         LOG.info("calcultating: " + line);
         String[] vals = line.split(" ");
-        switch (vals[0]) {
-            case "ADD":
-                return String.valueOf(Double.parseDouble(vals[1]) + Double.parseDouble(vals[2]));
-            case "SUB":
-                return String.valueOf(Double.parseDouble(vals[1]) - Double.parseDouble(vals[2]));
-            case "DIV":
-                return String.valueOf(Double.parseDouble(vals[1]) / Double.parseDouble(vals[2]));
-            case "MOD":
-                return String.valueOf(Double.parseDouble(vals[1]) % Double.parseDouble(vals[2]));
-            case "EXP":
-                return String.valueOf(Math.pow(Double.parseDouble(vals[1]), Double.parseDouble(vals[2])));
+        try {
+            Double op1 = Double.parseDouble(vals[1]);
+            Double op2 = Double.parseDouble(vals[2]);
+
+            switch (vals[0]) {
+                case "ADD":
+                case "SUB":
+                case "MUL":
+                case "DIV":
+                case "MOD":
+                case "EXP":
+                    return this.binOp(line);
+                case "INV":
+                    return this.unOp(line);
+            }
+        } catch (NumberFormatException $e) {
+            LOG.warning("Some is triny to do something stupid");
         }
 
         return "You F****** MORON";
+    }
+
+    private String binOp(String line) {
+        String[] vals = line.split(" ");
+        try {
+            Double op1 = Double.parseDouble(vals[1]);
+            Double op2 = Double.parseDouble(vals[2]);
+
+            switch (vals[0]) {
+                case "ADD":
+                    return String.valueOf(op1 + op2);
+                case "SUB":
+                    return String.valueOf(op1 - op2);
+                case "MUL":
+                    return String.valueOf(op1 * op2);
+                case "DIV":
+                    return String.valueOf(op1 / op2);
+                case "MOD":
+                    return String.valueOf(op1 % op2);
+                case "EXP":
+                    return String.valueOf(Math.pow(Double.parseDouble(vals[1]), Double.parseDouble(vals[2])));
+            }
+        } catch (NumberFormatException $e) {
+            LOG.warning("Some is triny to do something stupid");
+        }
+
+        return "Operation not supported";
+    }
+
+    private String unOp(String line) {
+        String[] vals = line.split(" ");
+        try {
+            return String.valueOf(-Double.parseDouble(vals[1]));
+        } catch (NumberFormatException $e) {
+            LOG.warning("Some is triny to do something stupid");
+        }
+
+        return "Operation not supported";
     }
 }
