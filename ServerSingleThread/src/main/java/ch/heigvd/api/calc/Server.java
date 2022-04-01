@@ -81,9 +81,6 @@ public class Server {
         LOG.info("calcultating: " + line);
         String[] vals = line.split(" ");
         try {
-            Double op1 = Double.parseDouble(vals[1]);
-            Double op2 = Double.parseDouble(vals[2]);
-
             switch (vals[0]) {
                 case "ADD":
                 case "SUB":
