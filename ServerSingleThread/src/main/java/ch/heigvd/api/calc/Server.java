@@ -27,11 +27,15 @@ public class Server {
      * Start the server on a listening socket.
      */
     private void start() {
-        /* TODO: implement the receptionist server here.
-         *  The receptionist just creates a server socket and accepts new client connections.
-         *  For a new client connection, the actual work is done by the handleClient method below.
-         */
+        try {
+            ServerSocket serverSocket = new ServerSocket(42069);
 
+            Socket client = serverSocket.accept();
+            this.handleClient(client);
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -40,16 +44,49 @@ public class Server {
      * @param clientSocket with the connection with the individual client.
      */
     private void handleClient(Socket clientSocket) {
+        try {
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(
+                            clientSocket.getInputStream()
+                    )
+            );
 
-        /* TODO: implement the handling of a client connection according to the specification.
-         *   The server has to do the following:
-         *   - initialize the dialog according to the specification (for example send the list
-         *     of possible commands)
-         *   - In a loop:
-         *     - Read a message from the input stream (using BufferedReader.readLine)
-         *     - Handle the message
-         *     - Send to result to the client
-         */
+            BufferedWriter bwt = new BufferedWriter(
+                    new OutputStreamWriter(
+                            clientSocket.getOutputStream()
+                    )
+            );
 
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.equals("GOODBYE")) {
+                    break;
+                }
+                bwt.write(this.calculate(line));
+                bwt.flush();
+            }
+            bwt.close();
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String calculate(String line) {
+        String[] vals = line.split(" ");
+        switch (vals[0]) {
+            case "ADD":
+                return String.valueOf(Double.parseDouble(vals[1]) + Double.parseDouble(vals[2]));
+            case "SUB":
+                return String.valueOf(Double.parseDouble(vals[1]) - Double.parseDouble(vals[2]));
+            case "DIV":
+                return String.valueOf(Double.parseDouble(vals[1]) / Double.parseDouble(vals[2]));
+            case "MOD":
+                return String.valueOf(Double.parseDouble(vals[1]) % Double.parseDouble(vals[2]));
+            case "EXP":
+                return String.valueOf(Math.pow(Double.parseDouble(vals[1]), Double.parseDouble(vals[2])));
+        }
+
+        return "You F****** MORON";
     }
 }
