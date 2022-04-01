@@ -1,7 +1,7 @@
 package ch.heigvd.api.calc;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,23 +17,47 @@ public class Client {
      *
      * @param args no args required
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
-        BufferedReader stdin = null;
+        BufferedReader stdin;
 
-        /* TODO: Implement the client here, according to your specification
-         *   The client has to do the following:
-         *   - connect to the server
-         *   - initialize the dialog with the server according to your specification
-         *   - In a loop:
-         *     - read the command from the user on stdin (already created)
-         *     - send the command to the server
-         *     - read the response line from the server (using BufferedReader.readLine)
-         */
+        Socket socket = null;
+        try {
+            LOG.info("Connecting to server on localhost:42069");
+            socket = new Socket("localhost", 42069);
+            LOG.info("Connected to server on localhost:42069");
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Could not connect to socket (" + e.getMessage() + "), exiting");
+            System.exit(1);
+        }
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        PrintWriter bwt = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 
         stdin = new BufferedReader(new InputStreamReader(System.in));
+        String line;
+        while ((line = stdin.readLine()) != null) {
 
+            if (line.equals("QUIT")) {
+                LOG.info("Exit requested");
+                break;
+            }
+
+            bwt.write(line + "\n");
+            bwt.flush();
+
+            String answer;
+            while ((answer = br.readLine()) != null) {
+                break;
+            }
+
+            System.out.println("> " + answer);
+        }
+
+        LOG.info("Closing socket");
+        socket.close();
+        System.out.println("Exiting....");
     }
 }
