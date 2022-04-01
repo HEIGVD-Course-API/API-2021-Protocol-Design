@@ -30,9 +30,12 @@ public class Server {
         try {
             ServerSocket serverSocket = new ServerSocket(42069);
 
-            Socket client = serverSocket.accept();
-            this.handleClient(client);
-            client.close();
+            Socket client;
+            while (true) {
+                client = serverSocket.accept();
+                this.handleClient(client);
+                client.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
