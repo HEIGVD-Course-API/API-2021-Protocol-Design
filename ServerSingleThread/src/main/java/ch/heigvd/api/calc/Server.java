@@ -33,6 +33,7 @@ public class Server {
             Socket client;
             while (true) {
                 client = serverSocket.accept();
+                LOG.info("client connected");
                 this.handleClient(client);
                 client.close();
             }
@@ -62,6 +63,7 @@ public class Server {
 
             String line;
             while ((line = br.readLine()) != null) {
+                LOG.info("client sent: " + line);
                 if (line.equals("GOODBYE")) {
                     break;
                 }
@@ -76,6 +78,7 @@ public class Server {
     }
 
     private String calculate(String line) {
+        LOG.info("calcultating: " + line);
         String[] vals = line.split(" ");
         switch (vals[0]) {
             case "ADD":
