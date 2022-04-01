@@ -80,23 +80,19 @@ public class Server {
     private String calculate(String line) {
         LOG.info("calcultating: " + line);
         String[] vals = line.split(" ");
-        try {
-            switch (vals[0]) {
-                case "ADD":
-                case "SUB":
-                case "MUL":
-                case "DIV":
-                case "MOD":
-                case "EXP":
-                    return this.binOp(line);
-                case "INV":
-                    return this.unOp(line);
-            }
-        } catch (NumberFormatException $e) {
-            LOG.warning("Some is triny to do something stupid");
+        switch (vals[0]) {
+            case "ADD":
+            case "SUB":
+            case "MUL":
+            case "DIV":
+            case "MOD":
+            case "EXP":
+                return this.binOp(line);
+            case "INV":
+                return this.unOp(line);
         }
 
-        return "You F****** MORON";
+        return "Operation does not exist";
     }
 
     private String binOp(String line) {
@@ -120,7 +116,9 @@ public class Server {
                     return String.valueOf(Math.pow(Double.parseDouble(vals[1]), Double.parseDouble(vals[2])));
             }
         } catch (NumberFormatException $e) {
-            LOG.warning("Some is triny to do something stupid");
+            return "Number don't make sense";
+        } catch (ArrayIndexOutOfBoundsException $e) {
+            return "Seems like you forgot how to count";
         }
 
         return "Operation not supported";
@@ -131,9 +129,9 @@ public class Server {
         try {
             return String.valueOf(-Double.parseDouble(vals[1]));
         } catch (NumberFormatException $e) {
-            LOG.warning("Some is triny to do something stupid");
+            return "Number don't make sense";
+        } catch (ArrayIndexOutOfBoundsException $e) {
+            return "Seems like you forgot how to count";
         }
-
-        return "Operation not supported";
     }
 }
