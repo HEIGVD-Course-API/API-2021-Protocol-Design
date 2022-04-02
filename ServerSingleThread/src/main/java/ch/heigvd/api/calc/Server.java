@@ -101,7 +101,7 @@ public class Server {
                             instructions, 1, instructions.length
                     ).mapToDouble(Double::valueOf).toArray();
                 } catch (Exception e) {
-                    out.println("Conversion error");
+                    out.println("Conversion ERROR");
                     out.flush();
                     continue;
                 }
@@ -121,6 +121,7 @@ public class Server {
                 }
             }
         } catch (IOException e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
             e.printStackTrace();
         }
 

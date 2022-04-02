@@ -45,9 +45,9 @@ public class Server {
             LOG.info("Waiting (blocking) for a new client...");
             try {
                 Socket clientSocket = serverSocket.accept();
-                new Thread(new ServantWorker(clientSocket)).start();
+                new Thread(new ServerWorker(clientSocket)).start();
             } catch (IOException ex) {
-                LOG.log(Level.SEVERE, ex.getMessage, ex);
+                LOG.log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
     }
