@@ -16,7 +16,7 @@ public class Server {
     /**
      * Main function to start the server
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Log output on a single line
         System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s%6$s%n");
 
@@ -26,8 +26,16 @@ public class Server {
     /**
      * Start the server on a listening socket.
      */
-    private void start() {
+    private void start() throws IOException {
+        ServerWorker.OPERATIONS.add(new AddOperation());
+        ServerWorker.OPERATIONS.add(new SupOperation());
+        ServerWorker.OPERATIONS.add(new MulOperation());
 
+        ServerSocket server = new ServerSocket(1997);
+        while (true) {
+            Socket s = server.accept();
+            new ServerWorker(s).run();
+        }
         /* TODO: implement the receptionist server here.
          *  The receptionist just creates a server socket and accepts new client connections.
          *  For a new client connection, the actual work is done in a new thread
@@ -35,4 +43,6 @@ public class Server {
          */
 
     }
+
+
 }
