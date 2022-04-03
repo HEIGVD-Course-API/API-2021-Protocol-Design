@@ -3,7 +3,6 @@ package ch.heigvd.api.calc;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -36,13 +35,5 @@ public class Server {
             Socket s = server.accept();
             new ServerWorker(s).run();
         }
-        /* TODO: implement the receptionist server here.
-         *  The receptionist just creates a server socket and accepts new client connections.
-         *  For a new client connection, the actual work is done in a new thread
-         *  by a new ServerWorker.
-         */
-
     }
-
-
 }

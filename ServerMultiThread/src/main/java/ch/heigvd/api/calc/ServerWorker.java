@@ -30,11 +30,6 @@ public class ServerWorker implements Runnable {
         output = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
         output.flush();
         input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        /* TODO: prepare everything for the ServerWorker to run when the
-         *   server calls the ServerWorker.run method.
-         *   Don't call the ServerWorker.run method here. It has to be called from the Server.
-         */
-
     }
 
     /**
@@ -71,18 +66,7 @@ public class ServerWorker implements Runnable {
                 }
             } catch (IOException e) {
                 LOG.log(Level.WARNING, "Cannot send message");
-
             }
-
-            /* TODO: implement the handling of a client connection according to the specification.
-             *   The server has to do the following:
-             *   - initialize the dialog according to the specification (for example send the list
-             *     of possible commands)
-             *   - In a loop:
-             *     - Read a message from the input stream (using BufferedReader.readLine)
-             *     - Handle the message
-             *     - Send to result to the client
-             */
         }
     }
 

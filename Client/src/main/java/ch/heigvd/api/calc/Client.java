@@ -24,16 +24,6 @@ public class Client {
 
         BufferedReader stdin = null;
 
-        /* TODO: Implement the client here, according to your specification
-         *   The client has to do the following:
-         *   - connect to the server
-         *   - initialize the dialog with the server according to your specification
-         *   - In a loop:
-         *     - read the command from the user on stdin (already created)
-         *     - send the command to the server
-         *     - read the response line from the server (using BufferedReader.readLine)
-         */
-
         stdin = new BufferedReader(new InputStreamReader(System.in));
 
         Socket socket = new Socket("127.0.0.1", 1997);
@@ -43,11 +33,6 @@ public class Client {
         String line;
         while( !(line = receiveReader.readLine()).equals("END") )
         {
-            /*if (!s.equals("WELCOME"))
-            {
-                String[] parts = line.split("\\s");
-                System.out.println( "Server supports operation " + parts[0] + " that takes " + parts[1] + " parameters." );
-            }*/
             System.out.println(line);
         }
 
@@ -58,6 +43,8 @@ public class Client {
         {
             sendWriter.println(line);
 
+            quit = line.equals("GOODBYYE");
+
             if (!quit)
             {
                 System.out.println( receiveReader.readLine() );
@@ -65,21 +52,5 @@ public class Client {
         }
 
         socket.close();
-
-        String[] parts = line.split("\\s");
-
-        try {
-            if (parts[0].equals("ADD") && parts.length == 3)
-            {
-                double a = Double.parseDouble( parts[1] );
-                double b = Double.parseDouble( parts[2] );
-                System.out.println("RESULT " + (a + b));
-            }
-        }
-        catch (Exception ex)
-        {
-            System.out.println("ERROR " + ex.getMessage().replace("\r", "").replace("\n", ""));
-        }
-
     }
 }
